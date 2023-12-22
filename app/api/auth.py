@@ -21,9 +21,11 @@ def get_login_code():
     if user is None:
         return error_response(404, message="Not found")
     login_code = user.get_login_code()
+    # this part is just for test
     response_data = {
         "login_code": login_code,
     }
+    ############################
     return jsonify(response_data)
 
 
@@ -43,9 +45,7 @@ def login():
     if not user.check_login_code(login_code):
         return error_response(status_code=401, message="Unauthorized")
     token = user.get_token()
-    #this part is just for test
     response_data = {
         "token": token,
     }
-    ###########################
     return jsonify(response_data)

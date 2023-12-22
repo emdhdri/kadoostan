@@ -1,4 +1,4 @@
-from app.utils.serializers.serializer import Serializer
+from app.utils.serializers import Serializer
 
 
 class UserSerializer(Serializer):
