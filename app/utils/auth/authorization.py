@@ -19,7 +19,7 @@ class TokenAuthz:
         def decorated(*args, **kwargs):
             user = self.verify_token()
             if user is None:
-                return error_response(status_code=401, message="Unauthorized")
+                return error_response(status_code=401)
 
             g.current_user = user
             return f(*args, **kwargs)

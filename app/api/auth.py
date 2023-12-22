@@ -16,19 +16,20 @@ def get_login_code():
     try:
         validate(data, LoginCodeSchema.get_schema())
     except ValidationError:
-        return error_response(400, message="Invalid data")
+        return error_response(400)
 
     phone_number = data["phone_number"]
     user = User.objects(phone_number=phone_number).first()
     if user is None:
-        return error_response(404, message="Not found")
+        return error_response(404)
     login_code = user.get_login_code()
     # this part is just for test
     response_data = {
         "login_code": login_code,
     }
     ############################
-    return jsonify(response_data)
+    response = jsonify(response_data)
+    return response
 
 
 @api_bp.route("/auth/login", methods=["POST"])
@@ -38,23 +39,25 @@ def login():
     try:
         validate(data, LoginSchema.get_schema())
     except ValidationError:
-        return error_response(400, message="Invalid data")
+        return error_response(400)
 
     phone_number = data["phone_number"]
     login_code = data["login_code"]
     user = User.objects(phone_number=phone_number).first()
     if user is None:
-        return error_response(404, message="Not found")
+        return error_response(404)
     if not user.check_login_code(login_code):
-        return error_response(status_code=401, message="Unauthorized")
+        return error_response(status_code=401)
     token = user.get_token()
     response_data = {
         "token": token,
     }
-    return jsonify(response_data)
+    response = jsonify(response_data)
+
+    return response
 
 
-@api_bp.route("/logout", mmethods=["POST"])
+@api_bp.route("/logout", methods=["GET"])
 @token_auth.check_login
 def logout():
     """"""

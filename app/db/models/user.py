@@ -17,13 +17,18 @@ class User(me.Document):
     created_at = me.DateTimeField(default=datetime.utcnow)
     updated_at = me.DateTimeField(default=datetime.utcnow)
 
-    def from_dict(self, data):
-        self.id = data["id"]
-        self.phone_number = data["phone_number"]
-        self.first_name = data["first_name"]
-        self.last_name = data["last_name"]
-        self.created_at = datetime.utcnow
-        self.updated_at = datetime.utcnow
+    def from_dict(self, data, new_obj=True):
+        if "id" in data:
+            self.id = data["id"]
+        if "phone_number" in data:
+            self.phone_number = data["phone_number"]
+        if "first_name" in data:
+            self.first_name = data["first_name"]
+        if "last_name" in data:
+            self.last_name = data["last_name"]
+        if new_obj:
+            self.created_at = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
 
     def get_login_code(self):
         now = datetime.utcnow()
@@ -40,7 +45,7 @@ class User(me.Document):
 
     def get_token(self, expires_in=3600):
         now = datetime.utcnow()
-        if self.token and self.token_expiration > now + timedelta(seconds=60):
+        if self.token and self.token_exp > now + timedelta(seconds=60):
             return self.token
         self.token = base64.b64encode(os.urandom(24)).decode("utf-8")
         self.token_exp = now + timedelta(seconds=expires_in)
@@ -48,5 +53,5 @@ class User(me.Document):
         return self.token
 
     def revoke_token(self):
-        self.token_expiration = datetime.utcnow() - timedelta(seconds=1)
+        self.token_exp = datetime.utcnow() - timedelta(seconds=1)
         self.save()

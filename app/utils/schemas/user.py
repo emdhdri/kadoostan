@@ -5,3 +5,9 @@ class UserSchema(jsl.Document):
     phone_number = jsl.StringField(required=True)
     first_name = jsl.StringField()
     last_name = jsl.StringField()
+
+
+class EditUserSchema(jsl.Document):
+    phone_number = jsl.StringField()
+    first_name = jsl.StringField()
+    last_name = jsl.StringField()
