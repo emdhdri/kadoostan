@@ -5,6 +5,7 @@ from jsonschema import validate
 from utils.schemas import UserSchema
 from utils.serializers import UserSerializer
 from utils.errors import error_response
+from utils.auth import token_auth
 from jsonschema.exceptions import ValidationError
 import uuid
 
@@ -29,3 +30,11 @@ def create_user():
         return response
     else:
         return error_response(409, message="Duplicate resource")
+
+
+@api_bp.route("/user", methods=["GET"])
+@token_auth.check_login
+def get_user():
+    user = token_auth.current_user()
+    user_data = UserSerializer(user).data
+    return jsonify(user_data)
