@@ -12,7 +12,7 @@ import uuid
 
 @api_bp.route("/register", methods=["POST"])
 def create_user():
-    """ """
+    """"""
     data = request.get_json() or {}
     try:
         validate(data, UserSchema.get_schema())
@@ -35,6 +35,7 @@ def create_user():
 @api_bp.route("/user", methods=["GET"])
 @token_auth.check_login
 def get_user():
+    """"""
     user = token_auth.current_user()
     user_data = UserSerializer(user).data
     return jsonify(user_data)

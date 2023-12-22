@@ -3,6 +3,7 @@ from flask import request
 from app.db.models import User
 from app.utils.errors import error_response
 from app.utils.schemas import LoginSchema, LoginCodeSchema
+from app.utils.auth import token_auth
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from flask import jsonify
@@ -10,6 +11,7 @@ from flask import jsonify
 
 @api_bp.route("/auth/logincode", methods=["POST"])
 def get_login_code():
+    """"""
     data = request.get_json() or {}
     try:
         validate(data, LoginCodeSchema.get_schema())
@@ -31,6 +33,7 @@ def get_login_code():
 
 @api_bp.route("/auth/login", methods=["POST"])
 def login():
+    """"""
     data = request.get_json() or {}
     try:
         validate(data, LoginSchema.get_schema())
@@ -49,3 +52,12 @@ def login():
         "token": token,
     }
     return jsonify(response_data)
+
+
+@api_bp.route("/logout", mmethods=["POST"])
+@token_auth.check_login
+def logout():
+    """"""
+    user = token_auth.current_user()
+    user.revoke_token()
+    return jsonify(status=200)
