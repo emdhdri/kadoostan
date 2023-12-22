@@ -2,10 +2,10 @@ from app.api import api_bp
 from app.db.models import User
 from flask import request, jsonify
 from jsonschema import validate
-from utils.schemas import UserSchema
-from utils.serializers import UserSerializer
-from utils.errors import error_response
-from utils.auth import token_auth
+from app.utils.schemas import UserSchema
+from app.utils.serializers import UserSerializer
+from app.utils.errors import error_response
+from app.utils.auth import token_auth
 from jsonschema.exceptions import ValidationError
 import uuid
 

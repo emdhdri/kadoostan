@@ -10,13 +10,13 @@ class TokenAuthz:
     def verify_token(self):
         token = self.get_token() or ""
         user = User.objects(token=token).first()
-        if user is None or user.token_exp < datetime.utcnow:
+        if user is None or user.token_exp < datetime.utcnow():
             return None
         return user
 
     def check_login(self, f):
         @wraps(f)
-        def decorated(f, *args, **kwargs):
+        def decorated(*args, **kwargs):
             user = self.verify_token()
             if user is None:
                 return error_response(status_code=401, message="Unauthorized")

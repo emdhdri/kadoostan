@@ -1,8 +1,8 @@
 from app.api import api_bp
 from flask import request
 from app.db.models import User
-from utils.errors import error_response
-from utils.schemas import LoginSchema, LoginCodeSchema
+from app.utils.errors import error_response
+from app.utils.schemas import LoginSchema, LoginCodeSchema
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from flask import jsonify
@@ -43,7 +43,9 @@ def login():
     if not user.check_login_code(login_code):
         return error_response(status_code=401, message="Unauthorized")
     token = user.get_token()
+    #this part is just for test
     response_data = {
         "token": token,
     }
+    ###########################
     return jsonify(response_data)

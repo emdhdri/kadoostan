@@ -18,19 +18,15 @@ class User(me.Document):
     updated_at = me.DateTimeField(default=datetime.utcnow)
 
     def from_dict(self, data):
-        if "id" in data:
-            self.id = data["id"]
-        if "phone_number" in data:
-            self.id = data["phone_number"]
-        if "first_name" in data:
-            self.id = data["first_name"]
-        if "last_name" in data:
-            self.id = data["last_name"]
+        self.id = data["id"]
+        self.phone_number = data["phone_number"]
+        self.first_name = data["first_name"]
+        self.last_name = data["last_name"]
         self.created_at = datetime.utcnow
         self.updated_at = datetime.utcnow
 
     def get_login_code(self):
-        now = datetime.utcnow
+        now = datetime.utcnow()
         if self.login_code and self.login_code_exp > now:
             return self.login_code
         number = str(randint(10000, 99999))
@@ -47,7 +43,7 @@ class User(me.Document):
         if self.token and self.token_expiration > now + timedelta(seconds=60):
             return self.token
         self.token = base64.b64encode(os.urandom(24)).decode("utf-8")
-        self.token_expiration = now + timedelta(seconds=expires_in)
+        self.token_exp = now + timedelta(seconds=expires_in)
         self.save()
         return self.token
 
