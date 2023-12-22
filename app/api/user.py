@@ -13,7 +13,28 @@ import uuid
 @api_bp.route("/user", methods=["GET"])
 @token_auth.check_login
 def get_user():
-    """"""
+    """
+    @api {get} /user Get User data
+    @apiname GetUser
+    @apiGroup User
+    @apiHeader {String} authorization Authorization token.
+
+    @apiSuccess {String} id User uuid id
+    @apiSuccess {String} phone_nummber User phone number
+    @apiSuccess {String} first_name User first name
+    @apiSuccess {String} last_name User last name
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "first_name": "lex",
+            "id": "b003c15c-b72d-4ee8-979d-10d8dcdda096",
+            "last_name": "fridman",
+            "phone_number": "123456"
+        }
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+
+    """
     user = token_auth.current_user()
     response_data = UserSerializer(user).data
     response = jsonify(response_data)
@@ -22,7 +43,27 @@ def get_user():
 
 @api_bp.route("/register", methods=["POST"])
 def create_user():
-    """"""
+    """
+    @api {post} /api/register register new User
+    @apiName RegisterUser
+    @apiGroup User
+
+    @apiBody {String} phone_number User phone number
+    @apiBody {String} [first_name] User first name
+    @apiBody {String} [last_name] User last name
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 201 CREATED
+        {
+            "first_name": "lex",
+            "id": "b003c15c-b72d-4ee8-979d-10d8dcdda096",
+            "last_name": "fridman",
+            "phone_number": "123456"
+        }
+    @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+    @apiError (Conflict 409) Conflict Existing data with same field.
+
+    """
     data = request.get_json() or {}
     try:
         validate(data, UserSchema.get_schema())
@@ -45,7 +86,28 @@ def create_user():
 @api_bp.route("/user", methods=["PUT"])
 @token_auth.check_login
 def edit_user():
-    """"""
+    """
+    @api {put} /api/user Modify User
+    @apiname ModifyUser
+    @apiGroup User
+    @apiHeader {String} authorization Authorization token.
+
+    @apiBody {String} [phone_number] User phone number
+    @apiBody {String} [first_name] User first name
+    @apiBody {String} [last_name] User last name
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 201 CREATED
+        {
+            "first_name": "lex",
+            "id": "b003c15c-b72d-4ee8-979d-10d8dcdda096",
+            "last_name": "fridman",
+            "phone_number": "123456"
+        }
+    @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+
+    """
     user = token_auth.current_user()
     data = request.get_json() or {}
     try:
@@ -64,7 +126,16 @@ def edit_user():
 @api_bp.route("/user", methods=["DELETE"])
 @token_auth.check_login
 def delete_account():
-    """"""
+    """
+    @api {delete} /api/user Delete User
+    @apiname DeleteUser
+    @apiGroup User
+    @apiHeader {String} authorization Authorization token.
+
+    @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+
+    """
     user = token_auth.current_user()
     user.delete()
     return jsonify(status=200)

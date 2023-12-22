@@ -11,7 +11,16 @@ from flask import jsonify
 
 @api_bp.route("/auth/logincode", methods=["POST"])
 def get_login_code():
-    """"""
+    """
+    @api {post} /api/auth/logincode Get login code
+    @apiName GetLoginCode
+    @apiGroup login/logout
+
+    @apiBody {string} phone_number User phone number
+
+    @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+    @apiError (Not found 404) NotFound User not found.
+    """
     data = request.get_json() or {}
     try:
         validate(data, LoginCodeSchema.get_schema())
@@ -34,7 +43,24 @@ def get_login_code():
 
 @api_bp.route("/auth/login", methods=["POST"])
 def login():
-    """"""
+    """
+    @api {post} /api/auth/login login
+    @apiName Login
+    @apiGroup login/logout
+
+    @apiBody {String} phone_number User phone number
+    @apiBody {String} login_code login code sent by SMS
+
+    @apiSuccess {String} token Authorization token
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "token": "lAqL3OCL5O09chhqY5ppnTemzCjUOuJT"
+        }
+    @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+
+    """
     data = request.get_json() or {}
     try:
         validate(data, LoginSchema.get_schema())
@@ -60,7 +86,15 @@ def login():
 @api_bp.route("/logout", methods=["GET"])
 @token_auth.check_login
 def logout():
-    """"""
+    """
+    @api {get} /api/logout Logout user
+    @apiName logout
+    @apiGroup login/logout
+    @apiHeader {String} authorization Authorization token.
+
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+
+    """
     user = token_auth.current_user()
     user.revoke_token()
     return jsonify(status=200)
