@@ -14,10 +14,26 @@ class User(me.Document):
     token_exp = me.DateTimeField()
     login_code = me.StringField()
     login_code_exp = me.DateTimeField()
-    created_at = me.DateTimeField(default=datetime.utcnow)
-    updated_at = me.DateTimeField(default=datetime.utcnow)
+    _created_at = me.DateTimeField(default=datetime.utcnow)
+    _updated_at = me.DateTimeField(default=datetime.utcnow)
 
-    def from_dict(self, data, new_obj=True):
+    meta = {"collection": "users"}
+
+    @property
+    def created_at(self) -> str | None:
+        if self._created_at is None:
+            return None
+        created_at = self._created_at.isoformat()
+        return created_at
+
+    @property
+    def updated_at(self) -> str | None:
+        if self._updated_at is None:
+            return None
+        updated_at = self._updated_at.isoformat()
+        return updated_at
+
+    def from_dict(self, data, new_obj=True) -> None:
         if "id" in data:
             self.id = data["id"]
         if "phone_number" in data:
@@ -27,10 +43,10 @@ class User(me.Document):
         if "last_name" in data:
             self.last_name = data["last_name"]
         if new_obj:
-            self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+            self._created_at = datetime.utcnow()
+        self._updated_at = datetime.utcnow()
 
-    def get_login_code(self):
+    def get_login_code(self) -> str:
         now = datetime.utcnow()
         if self.login_code and self.login_code_exp > now:
             return self.login_code
@@ -40,10 +56,10 @@ class User(me.Document):
         self.save()
         return self.login_code
 
-    def check_login_code(self, login_code):
+    def check_login_code(self, login_code: str) -> bool:
         return login_code == self.login_code
 
-    def get_token(self, expires_in=3600):
+    def get_token(self, expires_in: int = 3600) -> str:
         now = datetime.utcnow()
         if self.token and self.token_exp > now + timedelta(seconds=60):
             return self.token
@@ -52,6 +68,6 @@ class User(me.Document):
         self.save()
         return self.token
 
-    def revoke_token(self):
+    def revoke_token(self) -> None:
         self.token_exp = datetime.utcnow() - timedelta(seconds=1)
         self.save()

@@ -70,17 +70,17 @@ def create_user():
     except ValidationError:
         return error_response(400)
 
-    if User.objects(phone_number=data["phone_number"]).first() is None:
-        data["id"] = str(uuid.uuid4())
-        user = User()
-        user.from_dict(data)
-        user.save()
-        response_data = UserSerializer(user).data
-        response = jsonify(response_data)
-        response.status_code = 201
-        return response
-    else:
+    if User.objects(phone_number=data["phone_number"]).first() is not None:
         return error_response(409)
+
+    data["id"] = str(uuid.uuid4())
+    user = User()
+    user.from_dict(data)
+    user.save()
+    response_data = UserSerializer(user).data
+    response = jsonify(response_data)
+    response.status_code = 201
+    return response
 
 
 @api_bp.route("/user", methods=["PUT"])
