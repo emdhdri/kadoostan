@@ -2,7 +2,7 @@
   "name": "Kadoostan API",
   "description": "Documentation for a gifts social media.",
   "title": "Kadoostan documentation",
-  "order": ["User"],
+  "order": ["User", "GiftList"],
   "template": {
     "showRequiredLabels": true,
     "withCompare": true,

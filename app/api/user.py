@@ -25,7 +25,7 @@ def get_login_code():
     @apiBody {string} phone_number User phone number
 
     @apiError (Bad Request 400) BadRequest Invalid data sent by user.
-    @apiError (Not found 404) NotFound User not found.
+    @apiError (Not found 404) NotFound User with provided phone number not found.
     """
     data = request.get_json() or {}
     try:
@@ -126,7 +126,7 @@ def get_user():
             "first_name": "lex",
             "id": "b003c15c-b72d-4ee8-979d-10d8dcdda096",
             "last_name": "fridman",
-            "phone_number": "123456"
+            "phone_number": "09000000000"
         }
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
 
@@ -154,10 +154,10 @@ def create_user():
             "first_name": "lex",
             "id": "b003c15c-b72d-4ee8-979d-10d8dcdda096",
             "last_name": "fridman",
-            "phone_number": "123456"
+            "phone_number": "09000000000"
         }
     @apiError (Bad Request 400) BadRequest Invalid data sent by user.
-    @apiError (Conflict 409) Conflict Existing data with same field.
+    @apiError (Conflict 409) Conflict Existing data with same phone number.
 
     """
     data = request.get_json() or {}
@@ -193,12 +193,12 @@ def edit_user():
     @apiBody {String} [last_name] User last name
 
     @apiSuccessExample success-response:
-        HTTP/1.1 201 CREATED
+        HTTP/1.1 200 OK
         {
             "first_name": "lex",
             "id": "b003c15c-b72d-4ee8-979d-10d8dcdda096",
             "last_name": "fridman",
-            "phone_number": "123456"
+            "phone_number": "09000000000"
         }
     @apiError (Bad Request 400) BadRequest Invalid data sent by user.
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
@@ -215,7 +215,6 @@ def edit_user():
     user.save()
     response_data = UserSerializer(user).data
     response = jsonify(response_data)
-    response.status_code = 201
     return response
 
 

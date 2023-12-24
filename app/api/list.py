@@ -70,7 +70,7 @@ def create_list():
 
     @apiError (Bad Request 400) BadRequest Invalid data sent by user.
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
-    @apiError (Conflict 409) Conflict Existing data with same field.
+    @apiError (Conflict 409) Conflict Existing list with same name.
 
     """
     user = token_auth.current_user()
@@ -94,14 +94,15 @@ def create_list():
     return response
 
 
-@api_bp.route("/user/giftlists/<string:list_id>", methods=["GET"])
+@api_bp.route("/user/giftlists/<string:id>", methods=["GET"])
 @token_auth.check_login
-def get_specific_list(list_id):
+def get_specific_list(id):
     """
-    @api {get} /user/giftlists/:list_id Get specific list
+    @api {get} /user/giftlists/:id Get specific list
     @apiName GetSpecificGiftList
     @apiGroup GiftList
     @apiHeader {String} authorization Authorization token.
+    @apiParam {String} id Gift list id
 
     @apiSuccess {String} created_at create date
     @apiSuccess {String} id gift list id
@@ -129,7 +130,7 @@ def get_specific_list(list_id):
     @apiError (Not found 404) NotFound List not found.
     """
     user = token_auth.current_user()
-    gift_list = GiftList.objects(id=list_id, user_ref=user).first()
+    gift_list = GiftList.objects(id=id, user_ref=user).first()
     if gift_list is None:
         return error_response(404)
     response_data = GiftListSerializer(gift_list, include_user=True).data
@@ -137,14 +138,16 @@ def get_specific_list(list_id):
     return response
 
 
-@api_bp.route("/user/giftlists/<string:list_id>", methods=["PUT"])
+@api_bp.route("/user/giftlists/<string:id>", methods=["PUT"])
 @token_auth.check_login
-def modify_list(list_id):
+def modify_list(id):
     """
-    @api {put} /user/giftlists/:list_id Modify gift list
+    @api {put} /user/giftlists/:id Modify gift list
     @apiName ModifyGiftList
     @apiGroup GiftList
     @apiHeader {String} authorization Authorization token.
+    @apiParam {String} id Gift list id
+
 
     @apiBody {String} [name] gift list name
 
@@ -153,12 +156,31 @@ def modify_list(list_id):
     @apiSuccess {String} name gift list name
     @apiSuccess {String} updated_at last update date
 
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "created_at": "2023-12-24T17:15:35.047000",
+            "id": "42246c58-4950-4cbd-8f63-4da500b3f7e2",
+            "name": "birthday",
+            "updated_at": "2023-12-24T18:49:46.286280",
+            "user": {
+                "created_at": "2023-12-24T15:48:24.509000",
+                "first_name": "steve",
+                "id": "3f73a5bc-7257-40e3-94d8-4902c09dbc2d",
+                "last_name": "jobs",
+                "phone_number": "09935776712",
+                "updated_at": "2023-12-24T17:14:17.143000"
+            }
+        }
+
     @apiError (Bad Request 400) BadRequest Invalid data sent by user.
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
     @apiError (Not found 404) NotFound List not found.
+    @apiError (Conflict 409) Conflict Existing list with same name.
+
     """
     user = token_auth.current_user()
-    gift_list = GiftList.objects(id=list_id, user_ref=user).first()
+    gift_list = GiftList.objects(id=id, user_ref=user).first()
     if gift_list is None:
         return error_response(404)
     data = request.get_json() or {}
@@ -167,6 +189,14 @@ def modify_list(list_id):
     except ValidationError:
         return error_response(400)
 
+    if "name" in data and gift_list.name != data["name"]:
+        if GiftList.objects(name=data["name"], user_ref=user).first() is not None:
+            return error_response(409)
+    elif "name" in data and gift_list.name == data["name"]:
+        response_data = GiftListSerializer(gift_list, include_user=True).data
+        response = jsonify(response_data)
+        return response
+
     gift_list.from_dict(data, new_obj=False)
     gift_list.save()
     response_data = GiftListSerializer(gift_list, include_user=True).data
@@ -174,20 +204,21 @@ def modify_list(list_id):
     return response
 
 
-@api_bp.route("/user/giftlists/<string:list_id>", methods=["DELETE"])
+@api_bp.route("/user/giftlists/<string:id>", methods=["DELETE"])
 @token_auth.check_login
-def delete_list(list_id):
+def delete_list(id):
     """
-    @api {put} /user/giftlists/:list_id Delete gift list
+    @api {delete} /user/giftlists/:id Delete gift list
     @apiName DeleteGiftList
     @apiGroup GiftList
     @apiHeader {String} authorization Authorization token.
+    @apiParam {String} id Gift list id
 
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
     @apiError (Not found 404) NotFound List not found.
     """
     user = token_auth.current_user()
-    gift_list = GiftList.objects(id=list_id, user_ref=user).first()
+    gift_list = GiftList.objects(id=id, user_ref=user).first()
     if gift_list is None:
         return error_response(404)
     gift_list.delete()
