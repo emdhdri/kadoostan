@@ -32,11 +32,15 @@ class TokenAuthz:
 
     def get_token(self):
         auth = request.authorization
-        if auth is None and "Authorization" in request.headers:
-            try:
-                auth_type, token = request.headers["Authorization"].split(None, 1)
-                auth = Authorization(auth_type)
-                auth.token = token
-            except:
+        if auth is None:
+            if "Authorization" in request.headers:
+                try:
+                    auth_type, token = request.headers["Authorization"].split(None, 1)
+                    auth = Authorization(auth_type)
+                    auth.token = token
+                except:
+                    return None
+            else:
                 return None
+
         return auth.token

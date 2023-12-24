@@ -42,9 +42,10 @@ class User(me.Document):
             self.first_name = data["first_name"]
         if "last_name" in data:
             self.last_name = data["last_name"]
+        now = datetime.utcnow()
         if new_obj:
-            self._created_at = datetime.utcnow()
-        self._updated_at = datetime.utcnow()
+            self._created_at = now
+        self._updated_at = now
 
     def get_login_code(self) -> str:
         now = datetime.utcnow()

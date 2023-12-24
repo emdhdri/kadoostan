@@ -1,7 +1,11 @@
 class Serializer:
-    fields = []
-    data = {}
+    def __init__(self, object, fields=None):
+        self.object = object
+        self.fields = fields
 
-    def __init__(self, object):
+    @property
+    def data(self):
+        serialized_data = {}
         for field in self.fields:
-            self.data[field] = getattr(object, field, None)
+            serialized_data[field] = getattr(self.object, field, None)
+        return serialized_data

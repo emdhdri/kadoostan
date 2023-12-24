@@ -13,7 +13,35 @@ import uuid
 @api_bp.route("/user/giftlists", methods=["GET"])
 @token_auth.check_login
 def get_lists():
-    """"""
+    """
+    @api {get}  /user/giftlists Get User gift lists
+    @apiName AllGiftLists
+    @apiGroup GiftList
+    @apiHeader {String} authorization Authorization token.
+
+    @apiSuccess {Object[]} lists list of user gift lists
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "lists": [
+                {
+                    "created_at": "2023-12-24T17:15:35.047000",
+                    "id": "42246c58-4950-4cbd-8f63-4da500b3f7e2",
+                    "name": "birthday",
+                    "updated_at": "2023-12-24T17:15:35.047000"
+                },
+                {
+                    "created_at": "2023-12-24T17:15:45.641000",
+                    "id": "12635a74-0da8-4d95-a9ee-8d9da3c7d57e",
+                    "name": "christmas",
+                    "updated_at": "2023-12-24T17:15:45.641000"
+                }
+            ]
+        }
+
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    """
     user = token_auth.current_user()
     gift_lists = GiftList.objects(user_ref=user)
     serialized_data = [GiftListSerializer(obj).data for obj in gift_lists]
@@ -26,8 +54,25 @@ def get_lists():
 
 @api_bp.route("/user/giftlists", methods=["POST"])
 @token_auth.check_login
-def get_lists():
-    """"""
+def create_list():
+    """
+    @api {post} /user/giftlists Create new gift list
+    @apiName CreateGiftList
+    @apiGroup GiftList
+    @apiHeader {String} authorization Authorization token.
+
+    @apiBody {String} name gift list name
+
+    @apiSuccess (Created 201) {String} created_at create date
+    @apiSuccess (Created 201) {String} id gift list id
+    @apiSuccess (Created 201) {String} name gift list name
+    @apiSuccess (Created 201) {String} updated_at last update date
+
+    @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Conflict 409) Conflict Existing data with same field.
+
+    """
     user = token_auth.current_user()
     data = request.get_json() or {}
     try:
@@ -51,8 +96,38 @@ def get_lists():
 
 @api_bp.route("/user/giftlists/<string:list_id>", methods=["GET"])
 @token_auth.check_login
-def get_lists(list_id):
-    """"""
+def get_specific_list(list_id):
+    """
+    @api {get} /user/giftlists/:list_id Get specific list
+    @apiName GetSpecificGiftList
+    @apiGroup GiftList
+    @apiHeader {String} authorization Authorization token.
+
+    @apiSuccess {String} created_at create date
+    @apiSuccess {String} id gift list id
+    @apiSuccess {String} name gift list name
+    @apiSuccess {String} updated_at last update date
+    @apiSuccess {Object} user user that owns the list
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "created_at": "2023-12-24T17:15:35.047000",
+            "id": "42246c58-4950-4cbd-8f63-4da500b3f7e2",
+            "name": "birthday",
+            "updated_at": "2023-12-24T17:15:35.047000",
+            "user": {
+                "created_at": "2023-12-24T15:48:24.509000",
+                "first_name": "emad",
+                "id": "3f73a5bc-7257-40e3-94d8-4902c09dbc2d",
+                "last_name": "heidari",
+                "phone_number": "09000000000",
+                "updated_at": "2023-12-24T17:14:17.143000"
+            }
+        }
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound List not found.
+    """
     user = token_auth.current_user()
     gift_list = GiftList.objects(id=list_id, user_ref=user).first()
     if gift_list is None:
@@ -64,8 +139,24 @@ def get_lists(list_id):
 
 @api_bp.route("/user/giftlists/<string:list_id>", methods=["PUT"])
 @token_auth.check_login
-def get_lists(list_id):
-    """"""
+def modify_list(list_id):
+    """
+    @api {put} /user/giftlists/:list_id Modify gift list
+    @apiName ModifyGiftList
+    @apiGroup GiftList
+    @apiHeader {String} authorization Authorization token.
+
+    @apiBody {String} [name] gift list name
+
+    @apiSuccess {String} created_at create date
+    @apiSuccess {String} id gift list id
+    @apiSuccess {String} name gift list name
+    @apiSuccess {String} updated_at last update date
+
+    @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound List not found.
+    """
     user = token_auth.current_user()
     gift_list = GiftList.objects(id=list_id, user_ref=user).first()
     if gift_list is None:
@@ -85,8 +176,16 @@ def get_lists(list_id):
 
 @api_bp.route("/user/giftlists/<string:list_id>", methods=["DELETE"])
 @token_auth.check_login
-def get_lists(list_id):
-    """"""
+def delete_list(list_id):
+    """
+    @api {put} /user/giftlists/:list_id Delete gift list
+    @apiName DeleteGiftList
+    @apiGroup GiftList
+    @apiHeader {String} authorization Authorization token.
+
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound List not found.
+    """
     user = token_auth.current_user()
     gift_list = GiftList.objects(id=list_id, user_ref=user).first()
     if gift_list is None:

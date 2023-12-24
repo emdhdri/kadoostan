@@ -2,12 +2,108 @@ from app.api import api_bp
 from app.db.models import User
 from flask import request, jsonify
 from jsonschema import validate
-from app.utils.schemas import UserSchema, EditUserSchema
+from app.utils.schemas import (
+    UserSchema,
+    EditUserSchema,
+    LoginCodeSchema,
+    LoginSchema,
+)
 from app.utils.serializers import UserSerializer
 from app.utils.errors import error_response
 from app.utils.auth import token_auth
 from jsonschema.exceptions import ValidationError
 import uuid
+
+
+@api_bp.route("/auth/logincode", methods=["POST"])
+def get_login_code():
+    """
+    @api {post} /api/auth/logincode Get login code
+    @apiName GetLoginCode
+    @apiGroup User
+
+    @apiBody {string} phone_number User phone number
+
+    @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+    @apiError (Not found 404) NotFound User not found.
+    """
+    data = request.get_json() or {}
+    try:
+        validate(data, LoginCodeSchema.get_schema())
+    except ValidationError:
+        return error_response(400)
+
+    phone_number = data["phone_number"]
+    user = User.objects(phone_number=phone_number).first()
+    if user is None:
+        return error_response(404)
+    login_code = user.get_login_code()
+    # this part is just for test
+    response_data = {
+        "login_code": login_code,
+    }
+    ############################
+    response = jsonify(response_data)
+    return response
+
+
+@api_bp.route("/auth/login", methods=["POST"])
+def login():
+    """
+    @api {post} /api/auth/login login
+    @apiName Login
+    @apiGroup User
+
+    @apiBody {String} phone_number User phone number
+    @apiBody {String} login_code login code sent by SMS
+
+    @apiSuccess {String} token Authorization token
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "token": "lAqL3OCL5O09chhqY5ppnTemzCjUOuJT"
+        }
+    @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+
+    """
+    data = request.get_json() or {}
+    try:
+        validate(data, LoginSchema.get_schema())
+    except ValidationError:
+        return error_response(400)
+
+    phone_number = data["phone_number"]
+    login_code = data["login_code"]
+    user = User.objects(phone_number=phone_number).first()
+    if user is None:
+        return error_response(404)
+    if not user.check_login_code(login_code):
+        return error_response(status_code=401)
+    token = user.get_token()
+    response_data = {
+        "token": token,
+    }
+    response = jsonify(response_data)
+
+    return response
+
+
+@api_bp.route("/logout", methods=["GET"])
+@token_auth.check_login
+def logout():
+    """
+    @api {get} /api/logout Logout user
+    @apiName logout
+    @apiGroup User
+    @apiHeader {String} authorization Authorization token.
+
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+
+    """
+    user = token_auth.current_user()
+    user.revoke_token()
+    return jsonify(status=200)
 
 
 @api_bp.route("/user", methods=["GET"])

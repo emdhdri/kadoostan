@@ -8,7 +8,7 @@ from typing import Dict, Any
 class GiftList(me.Document):
     id = me.StringField(primary_key=True)
     user_ref = me.ReferenceField(User, reverse_delete_rule=me.CASCADE)
-    name = me.StringField(required=True, unique_with="user")
+    name = me.StringField(required=True, unique_with="user_ref")
     _created_at = me.DateTimeField(default=datetime.utcnow)
     _updated_at = me.DateTimeField(default=datetime.utcnow)
 
@@ -33,6 +33,7 @@ class GiftList(me.Document):
         if self.user_ref is None:
             return None
         serialized_user = UserSerializer(self.user_ref).data
+        print(serialized_user)
         return serialized_user
 
     def from_dict(self, data: Dict[str, Any], new_obj: bool = True) -> None:
@@ -42,6 +43,7 @@ class GiftList(me.Document):
             self.name = data["name"]
         if "user_ref" in data:
             self.user_ref = data["user_ref"]
+        now = datetime.utcnow()
         if new_obj:
-            self._created_at = datetime.utcnow()
-        self._updated_at = datetime.utcnow()
+            self._created_at = now
+        self._updated_at = now
