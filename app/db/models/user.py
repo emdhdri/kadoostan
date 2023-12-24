@@ -44,6 +44,7 @@ class User(me.Document):
             self.last_name = data["last_name"]
         now = datetime.utcnow()
         if new_obj:
+            self.get_token()
             self._created_at = now
         self._updated_at = now
 

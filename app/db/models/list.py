@@ -33,7 +33,6 @@ class GiftList(me.Document):
         if self.user_ref is None:
             return None
         serialized_user = UserSerializer(self.user_ref).data
-        print(serialized_user)
         return serialized_user
 
     def from_dict(self, data: Dict[str, Any], new_obj: bool = True) -> None:
