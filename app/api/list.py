@@ -14,7 +14,14 @@ import uuid
 @token_auth.check_login
 def get_lists():
     """"""
-    pass
+    user = token_auth.current_user()
+    gift_lists = GiftList.objects(user_ref=user)
+    serialized_data = [GiftListSerializer(obj).data for obj in gift_lists]
+    response_data = {
+        "lists": serialized_data,
+    }
+    response = jsonify(response_data)
+    return response
 
 
 @api_bp.route("/user/giftlists", methods=["POST"])
