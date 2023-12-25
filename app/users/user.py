@@ -1,6 +1,6 @@
-from app.api import api_bp
+from app.users import user_bp
 from app.db.models import User
-from flask import request, jsonify
+from flask import request
 from jsonschema import validate
 from app.utils.schemas import (
     EditUserSchema,
@@ -14,21 +14,21 @@ from jsonschema.exceptions import ValidationError
 import uuid
 
 
-@api_bp.route("/auth/logincode", methods=["POST"])
+@user_bp.route("/auth/logincode", methods=["POST"])
 def get_login_code():
     """
-    @api {post} /api/auth/logincode Get login code
+    @api {post} /api/user/auth/logincode Get login code
     @apiName GetLoginCode
     @apiGroup User
 
     @apiBody {string} phone_number User phone number
 
     @apiError (Bad Request 400) BadRequest Invalid data sent by user.
-    @apiError (Not found 404) NotFound User with provided phone number not found.
     """
     data = request.get_json() or {}
     try:
         validate(data, LoginCodeSchema.get_schema())
+        print(data["phone_number"])
     except ValidationError:
         return error_response(400)
 
@@ -49,10 +49,10 @@ def get_login_code():
     return make_response(data=response_data, status_code=200)
 
 
-@api_bp.route("/auth/login", methods=["POST"])
+@user_bp.route("/auth/login", methods=["POST"])
 def login():
     """
-    @api {post} /api/auth/login login
+    @api {post} /api/user/auth/login login
     @apiName Login
     @apiGroup User
 
@@ -67,7 +67,7 @@ def login():
             "token": "lAqL3OCL5O09chhqY5ppnTemzCjUOuJT"
         }
     @apiError (Bad Request 400) BadRequest Invalid data sent by user.
-
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
     """
     data = request.get_json() or {}
     try:
@@ -89,11 +89,11 @@ def login():
     return make_response(data=response_data, status_code=200)
 
 
-@api_bp.route("/logout", methods=["GET"])
+@user_bp.route("/logout", methods=["GET"])
 @token_auth.check_login
 def logout():
     """
-    @api {get} /api/logout Logout user
+    @api {get} /api/user/logout Logout user
     @apiName logout
     @apiGroup User
     @apiHeader {String} authorization Authorization token.
@@ -106,7 +106,7 @@ def logout():
     return make_response(status_code=200)
 
 
-@api_bp.route("/user", methods=["PUT"])
+@user_bp.route("", methods=["PUT"])
 @token_auth.check_login
 def edit_user():
     """
@@ -115,7 +115,6 @@ def edit_user():
     @apiGroup User
     @apiHeader {String} authorization Authorization token.
 
-    @apiBody {String} [phone_number] User phone number
     @apiBody {String} [first_name] User first name
     @apiBody {String} [last_name] User last name
 

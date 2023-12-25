@@ -1,6 +1,6 @@
-from app.api import api_bp
-from flask import jsonify, request
-from app.db.models import User, GiftList
+from app.lists import list_bp
+from flask import request
+from app.db.models import GiftList
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from app.utils.schemas import GiftListSchema, EditGiftListSchema
@@ -10,52 +10,71 @@ from app.utils.auth import token_auth
 import uuid
 
 
-@api_bp.route("/user/giftlists", methods=["GET"])
+@list_bp.route("", methods=["GET"])
 @token_auth.check_login
 def get_lists():
     """
-    @api {get}  /user/giftlists Get User gift lists
+    @api {get}  /api/lists Get User gift lists
     @apiName AllGiftLists
     @apiGroup GiftList
     @apiHeader {String} authorization Authorization token.
 
-    @apiSuccess {Object[]} lists list of user gift lists
+    @apiParam {Number} [page] page in pagination
+    @apiParam {Number} [per_page] result per page
+
+    @apiSuccess {Object[]} results list of user gift lists
+    @apiSuccess {Object} pagination pagination
 
     @apiSuccessExample success-response:
         HTTP/1.1 200 OK
         {
             "lists": [
                 {
-                    "created_at": "2023-12-24T17:15:35.047000",
-                    "id": "42246c58-4950-4cbd-8f63-4da500b3f7e2",
-                    "name": "birthday",
-                    "updated_at": "2023-12-24T17:15:35.047000"
+                    "created_at": "2023-12-25T22:38:24.344000",
+                    "id": "72158a74-6a7c-4856-8d67-787dac5719a2",
+                    "name": "valentine",
+                    "updated_at": "2023-12-25T22:38:24.344000"
                 },
                 {
-                    "created_at": "2023-12-24T17:15:45.641000",
-                    "id": "12635a74-0da8-4d95-a9ee-8d9da3c7d57e",
-                    "name": "christmas",
-                    "updated_at": "2023-12-24T17:15:45.641000"
+                    "created_at": "2023-12-25T22:38:15.741000",
+                    "id": "1afd9e77-ab21-495e-afbc-e191db8651ab",
+                    "name": "birthday",
+                    "updated_at": "2023-12-25T22:38:15.741000"
                 }
-            ]
+            ],
+            "pagination": {
+                "page": 1,
+                "per_page": 2
+            }
         }
 
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
     """
     user = token_auth.current_user()
-    gift_lists = GiftList.objects(user_ref=user)
+    parameters = request.args
+    page = parameters.get("page", 1, type=int)
+    per_page = parameters.get("per_page", 10, type=int)
+    start = (page - 1) * per_page
+    stop = start + per_page
+    if start > stop or start < 0 or page <= 0 or per_page <= 0:
+        return error_response(404)
+    gift_lists = GiftList.objects(user_ref=user).order_by("-_created_at")[start:stop]
     serialized_data = [obj.to_dict() for obj in gift_lists]
     response_data = {
         "lists": serialized_data,
+        "pagination": {
+            "page": page,
+            "per_page": per_page,
+        },
     }
     return make_response(data=response_data, status_code=200)
 
 
-@api_bp.route("/user/giftlists", methods=["POST"])
+@list_bp.route("", methods=["POST"])
 @token_auth.check_login
 def create_list():
     """
-    @api {post} /user/giftlists Create new gift list
+    @api {post} /api/lists Create new gift list
     @apiName CreateGiftList
     @apiGroup GiftList
     @apiHeader {String} authorization Authorization token.
@@ -91,11 +110,11 @@ def create_list():
     return make_response(data=response_data, status_code=201)
 
 
-@api_bp.route("/user/giftlists/<string:id>", methods=["GET"])
+@list_bp.route("/<string:id>", methods=["GET"])
 @token_auth.check_login
 def get_specific_list(id):
     """
-    @api {get} /user/giftlists/:id Get specific list
+    @api {get} /api/lists/:id Get specific list
     @apiName GetSpecificGiftList
     @apiGroup GiftList
     @apiHeader {String} authorization Authorization token.
@@ -134,11 +153,11 @@ def get_specific_list(id):
     return make_response(data=response_data, status_code=200)
 
 
-@api_bp.route("/user/giftlists/<string:id>", methods=["PUT"])
+@list_bp.route("/<string:id>", methods=["PUT"])
 @token_auth.check_login
 def modify_list(id):
     """
-    @api {put} /user/giftlists/:id Modify gift list
+    @api {put} /api/lists/:id Modify gift list
     @apiName ModifyGiftList
     @apiGroup GiftList
     @apiHeader {String} authorization Authorization token.
@@ -198,11 +217,11 @@ def modify_list(id):
     return make_response(data=response_data, status_code=200)
 
 
-@api_bp.route("/user/giftlists/<string:id>", methods=["DELETE"])
+@list_bp.route("/<string:id>", methods=["DELETE"])
 @token_auth.check_login
 def delete_list(id):
     """
-    @api {delete} /user/giftlists/:id Delete gift list
+    @api {delete} /api/lists/:id Delete gift list
     @apiName DeleteGiftList
     @apiGroup GiftList
     @apiHeader {String} authorization Authorization token.
