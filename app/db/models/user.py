@@ -33,6 +33,17 @@ class User(me.Document):
         updated_at = self._updated_at.isoformat()
         return updated_at
 
+    def to_dict(self):
+        data = {
+            "id": self.id,
+            "phone_number": self.phone_number,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+        }
+        return data
+
     def from_dict(self, data, new_obj=True) -> None:
         if "id" in data:
             self.id = data["id"]

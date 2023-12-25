@@ -4,8 +4,8 @@ from app.db.models import User, GiftList
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from app.utils.schemas import GiftListSchema, EditGiftListSchema
-from app.utils.serializers import GiftListSerializer
 from app.utils.errors import error_response
+from app.utils.response import make_response
 from app.utils.auth import token_auth
 import uuid
 
@@ -44,12 +44,11 @@ def get_lists():
     """
     user = token_auth.current_user()
     gift_lists = GiftList.objects(user_ref=user)
-    serialized_data = [GiftListSerializer(obj).data for obj in gift_lists]
+    serialized_data = [obj.to_dict() for obj in gift_lists]
     response_data = {
         "lists": serialized_data,
     }
-    response = jsonify(response_data)
-    return response
+    return make_response(data=response_data, status_code=200)
 
 
 @api_bp.route("/user/giftlists", methods=["POST"])
@@ -88,10 +87,8 @@ def create_list():
     data["user_ref"] = user
     gift_list.from_dict(data)
     gift_list.save()
-    response_data = GiftListSerializer(gift_list).data
-    response = jsonify(response_data)
-    response.status_code = 201
-    return response
+    response_data = gift_list.to_dict(include_user=True)
+    return make_response(data=response_data, status_code=201)
 
 
 @api_bp.route("/user/giftlists/<string:id>", methods=["GET"])
@@ -133,9 +130,8 @@ def get_specific_list(id):
     gift_list = GiftList.objects(id=id, user_ref=user).first()
     if gift_list is None:
         return error_response(404)
-    response_data = GiftListSerializer(gift_list, include_user=True).data
-    response = jsonify(response_data)
-    return response
+    response_data = gift_list.to_dict(include_user=True)
+    return make_response(data=response_data, status_code=200)
 
 
 @api_bp.route("/user/giftlists/<string:id>", methods=["PUT"])
@@ -193,15 +189,13 @@ def modify_list(id):
         if GiftList.objects(name=data["name"], user_ref=user).first() is not None:
             return error_response(409)
     elif "name" in data and gift_list.name == data["name"]:
-        response_data = GiftListSerializer(gift_list, include_user=True).data
-        response = jsonify(response_data)
-        return response
+        response_data = gift_list.to_dict(include_user=True)
+        return make_response(data=response_data, status_code=200)
 
     gift_list.from_dict(data, new_obj=False)
     gift_list.save()
-    response_data = GiftListSerializer(gift_list, include_user=True).data
-    response = jsonify(response_data)
-    return response
+    response_data = gift_list.to_dict(include_user=True)
+    return make_response(data=response_data, status_code=200)
 
 
 @api_bp.route("/user/giftlists/<string:id>", methods=["DELETE"])
@@ -222,4 +216,4 @@ def delete_list(id):
     if gift_list is None:
         return error_response(404)
     gift_list.delete()
-    return jsonify(status=200)
+    return make_response(status_code=200)

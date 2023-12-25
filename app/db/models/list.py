@@ -1,6 +1,5 @@
 import mongoengine as me
 from app.db.models.user import User
-from app.utils.serializers import UserSerializer
 from datetime import datetime
 from typing import Dict, Any
 
@@ -32,8 +31,20 @@ class GiftList(me.Document):
     def user(self) -> Dict[str, Any]:
         if self.user_ref is None:
             return None
-        serialized_user = UserSerializer(self.user_ref).data
+        serialized_user = self.user_ref.to_dict()
         return serialized_user
+
+    def to_dict(self, include_user: bool = False) -> Dict[str, Any]:
+        data = {
+            "id": self.id,
+            "name": self.name,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+        }
+
+        if include_user:
+            data["user"] = self.user
+        return data
 
     def from_dict(self, data: Dict[str, Any], new_obj: bool = True) -> None:
         if "id" in data:
