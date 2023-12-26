@@ -1,9 +1,9 @@
 from app.lists import list_bp
 from flask import request
-from app.db.models import GiftList
+from app.db.models import List
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-from app.utils.schemas import GiftListSchema, EditGiftListSchema
+from app.utils.schemas import ListSchema, EditListSchema
 from app.utils.errors import error_response
 from app.utils.response import make_response
 from app.utils.auth import token_auth
@@ -15,8 +15,8 @@ import uuid
 def get_lists():
     """
     @api {get}  /api/lists Get User gift lists
-    @apiName AllGiftLists
-    @apiGroup GiftList
+    @apiName AllLists
+    @apiGroup List
     @apiHeader {String} authorization Authorization token.
 
     @apiParam {Number} [page] page in pagination
@@ -58,7 +58,7 @@ def get_lists():
     stop = start + per_page
     if start > stop or start < 0 or page <= 0 or per_page <= 0:
         return error_response(404)
-    gift_lists = GiftList.objects(user_ref=user).order_by("-_created_at")[start:stop]
+    gift_lists = List.objects(user_ref=user).order_by("-_created_at")[start:stop]
     serialized_data = [obj.to_dict() for obj in gift_lists]
     response_data = {
         "lists": serialized_data,
@@ -75,8 +75,8 @@ def get_lists():
 def create_list():
     """
     @api {post} /api/lists Create new gift list
-    @apiName CreateGiftList
-    @apiGroup GiftList
+    @apiName CreateList
+    @apiGroup List
     @apiHeader {String} authorization Authorization token.
 
     @apiBody {String} name gift list name
@@ -94,14 +94,14 @@ def create_list():
     user = token_auth.current_user()
     data = request.get_json() or {}
     try:
-        validate(data, GiftListSchema.get_schema())
+        validate(data, ListSchema.get_schema())
     except ValidationError:
         return error_response(400)
 
-    if GiftList.objects(user_ref=user, name=data["name"]).first() is not None:
+    if List.objects(user_ref=user, name=data["name"]).first() is not None:
         return error_response(409)
 
-    gift_list = GiftList()
+    gift_list = List()
     data["id"] = str(uuid.uuid4())
     data["user_ref"] = user
     gift_list.from_dict(data)
@@ -115,8 +115,8 @@ def create_list():
 def get_specific_list(id):
     """
     @api {get} /api/lists/:id Get specific list
-    @apiName GetSpecificGiftList
-    @apiGroup GiftList
+    @apiName GetSpecificList
+    @apiGroup List
     @apiHeader {String} authorization Authorization token.
     @apiParam {String} id Gift list id
 
@@ -146,7 +146,7 @@ def get_specific_list(id):
     @apiError (Not found 404) NotFound List not found.
     """
     user = token_auth.current_user()
-    gift_list = GiftList.objects(id=id, user_ref=user).first()
+    gift_list = List.objects(id=id, user_ref=user).first()
     if gift_list is None:
         return error_response(404)
     response_data = gift_list.to_dict(include_user=True)
@@ -158,8 +158,8 @@ def get_specific_list(id):
 def modify_list(id):
     """
     @api {put} /api/lists/:id Modify gift list
-    @apiName ModifyGiftList
-    @apiGroup GiftList
+    @apiName ModifyList
+    @apiGroup List
     @apiHeader {String} authorization Authorization token.
     @apiParam {String} id Gift list id
 
@@ -195,17 +195,17 @@ def modify_list(id):
 
     """
     user = token_auth.current_user()
-    gift_list = GiftList.objects(id=id, user_ref=user).first()
+    gift_list = List.objects(id=id, user_ref=user).first()
     if gift_list is None:
         return error_response(404)
     data = request.get_json() or {}
     try:
-        validate(data, EditGiftListSchema.get_schema())
+        validate(data, EditListSchema.get_schema())
     except ValidationError:
         return error_response(400)
 
     if "name" in data and gift_list.name != data["name"]:
-        if GiftList.objects(name=data["name"], user_ref=user).first() is not None:
+        if List.objects(name=data["name"], user_ref=user).first() is not None:
             return error_response(409)
     elif "name" in data and gift_list.name == data["name"]:
         response_data = gift_list.to_dict(include_user=True)
@@ -222,8 +222,8 @@ def modify_list(id):
 def delete_list(id):
     """
     @api {delete} /api/lists/:id Delete gift list
-    @apiName DeleteGiftList
-    @apiGroup GiftList
+    @apiName DeleteList
+    @apiGroup List
     @apiHeader {String} authorization Authorization token.
     @apiParam {String} id Gift list id
 
@@ -231,7 +231,7 @@ def delete_list(id):
     @apiError (Not found 404) NotFound List not found.
     """
     user = token_auth.current_user()
-    gift_list = GiftList.objects(id=id, user_ref=user).first()
+    gift_list = List.objects(id=id, user_ref=user).first()
     if gift_list is None:
         return error_response(404)
     gift_list.delete()

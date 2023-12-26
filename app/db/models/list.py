@@ -4,14 +4,14 @@ from datetime import datetime
 from typing import Dict, Any
 
 
-class GiftList(me.Document):
+class List(me.Document):
     id = me.StringField(primary_key=True)
     user_ref = me.ReferenceField(User, reverse_delete_rule=me.CASCADE)
     name = me.StringField(required=True, unique_with="user_ref")
     _created_at = me.DateTimeField(default=datetime.utcnow)
     _updated_at = me.DateTimeField(default=datetime.utcnow)
 
-    meta = {"collection": "giftLists"}
+    meta = {"collection": "lists"}
 
     @property
     def created_at(self) -> str | None:

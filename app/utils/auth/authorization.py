@@ -8,7 +8,10 @@ from app.utils.errors import error_response
 
 class TokenAuthz:
     def verify_token(self):
-        token = self.get_token() or ""
+        token = self.get_token()
+        if token is None:
+            return None
+        print("token is : ", token)
         user = User.objects(token=token).first()
         if user is None or user.token_exp < datetime.utcnow():
             return None
@@ -31,16 +34,11 @@ class TokenAuthz:
             return g.current_user
 
     def get_token(self):
-        auth = request.authorization
-        if auth is None:
-            if "Authorization" in request.headers:
-                try:
-                    auth_type, token = request.headers["Authorization"].split(None, 1)
-                    auth = Authorization(auth_type)
-                    auth.token = token
-                except:
-                    return None
-            else:
+        if "Authorization" in request.headers:
+            try:
+                auth_type, token = request.headers["Authorization"].split(None, 1)
+                if auth_type == "Bearer":
+                    return token
+            except:
                 return None
-
-        return auth.token
+        return None

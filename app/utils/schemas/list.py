@@ -1,9 +1,9 @@
 import jsl
 
 
-class GiftListSchema(jsl.Document):
+class ListSchema(jsl.Document):
     name = jsl.StringField(required=True)
 
 
-class EditGiftListSchema(jsl.Document):
+class EditListSchema(jsl.Document):
     name = jsl.StringField()
