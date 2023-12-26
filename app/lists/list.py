@@ -28,7 +28,7 @@ def get_lists():
     @apiSuccessExample success-response:
         HTTP/1.1 200 OK
         {
-            "lists": [
+            "results": [
                 {
                     "created_at": "2023-12-25T22:38:24.344000",
                     "id": "72158a74-6a7c-4856-8d67-787dac5719a2",
@@ -61,7 +61,7 @@ def get_lists():
     gift_lists = List.objects(user_ref=user).order_by("-_created_at")[start:stop]
     serialized_data = [obj.to_dict() for obj in gift_lists]
     response_data = {
-        "lists": serialized_data,
+        "results": serialized_data,
         "pagination": {
             "page": page,
             "per_page": per_page,
@@ -155,7 +155,7 @@ def get_specific_list(id):
 
 @list_bp.route("/<string:id>", methods=["PUT"])
 @token_auth.check_login
-def modify_list(id):
+def update_list(id):
     """
     @api {put} /api/lists/:id Modify gift list
     @apiName ModifyList
@@ -234,5 +234,6 @@ def delete_list(id):
     gift_list = List.objects(id=id, user_ref=user).first()
     if gift_list is None:
         return error_response(404)
+
     gift_list.delete()
     return make_response(status_code=200)

@@ -108,7 +108,7 @@ def logout():
 
 @user_bp.route("", methods=["PUT"])
 @token_auth.check_login
-def edit_user():
+def update_user():
     """
     @api {put} /api/user Modify User
     @apiname ModifyUser
