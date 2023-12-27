@@ -6,7 +6,7 @@ from typing import Dict, Any
 
 class Gift(me.Document):
     id = me.StringField(primary_key=True)
-    list_ref = me.ReferenceField(List, reverse_delete_rule=me.CASCADE)
+    list_ref = me.ReferenceField(List, reverse_delete_rule=me.CASCADE, required=True)
     name = me.StringField(required=True)
     price = me.IntField()
     link = me.StringField()
@@ -27,14 +27,7 @@ class Gift(me.Document):
         updated_at = self._updated_at.isoformat()
         return updated_at
 
-    @property
-    def list(self) -> Dict[str, Any]:
-        if self.list_ref is None:
-            return None
-        serialized_user = self.list_ref.to_dict()
-        return serialized_user
-
-    def to_dict(self, include_list: bool = False) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, Any]:
         data = {
             "id": self.id,
             "name": self.name,
@@ -43,8 +36,6 @@ class Gift(me.Document):
             "created_at": self.created_at,
             "updated_at": self.updated_at,
         }
-        if include_list:
-            data["list"] = self.list
         return data
 
     def from_dict(self, data: Dict[str, Any], new_obj: bool = True) -> None:

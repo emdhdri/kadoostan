@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from random import randint
 import os
 import base64
+from typing import Dict, List, Any
 
 
 class User(me.Document):
@@ -33,15 +34,16 @@ class User(me.Document):
         updated_at = self._updated_at.isoformat()
         return updated_at
 
-    def to_dict(self):
+    def to_dict(self, confidential_data: bool = False) -> Dict[str, Any]:
         data = {
-            "id": self.id,
             "phone_number": self.phone_number,
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
         }
+        if confidential_data:
+            data["id"] = self.id
+            data["created_at"] = self.created_at
+            data["updated_at"] = self.updated_at
         return data
 
     def from_dict(self, data, new_obj=True) -> None:
