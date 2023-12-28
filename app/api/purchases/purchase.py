@@ -1,4 +1,4 @@
-from app.purchases import purchase_bp
+from app.api.purchases import purchase_bp
 from flask import request
 from app.db.models import Purchase, User, Gift
 from jsonschema import validate

@@ -1,7 +1,5 @@
 from flask import Flask
-from app.users import user_bp
-from app.lists import list_bp
-from app.purchases import purchase_bp
+from app.api import user_bp, list_bp, purchase_bp
 import mongoengine as me
 
 app = Flask(__name__)

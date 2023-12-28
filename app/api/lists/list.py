@@ -1,4 +1,4 @@
-from app.lists import list_bp
+from app.api.lists import list_bp
 from flask import request
 from app.db.models import List, Gift, Purchase
 from jsonschema import validate
@@ -28,7 +28,7 @@ def get_lists():
     @apiParam {Number} [per_page] result per page
 
     @apiSuccess {Object[]} results list of user lists
-    @apiSuccess {Object} pagination pagination
+    @apiSuccess {Object} pagination results pagination data
 
     @apiSuccessExample success-response:
         HTTP/1.1 200 OK
@@ -89,10 +89,10 @@ def create_list():
 
     @apiBody {String} name list name
 
-    @apiSuccess (Created 201) {String} created_at create date
-    @apiSuccess (Created 201) {String} id gift list id
-    @apiSuccess (Created 201) {String} name gift list name
-    @apiSuccess (Created 201) {String} updated_at last update date
+    @apiSuccess (Created 201) {String} created_at List creation date in isoformat
+    @apiSuccess (Created 201) {String} id List id
+    @apiSuccess (Created 201) {String} name List name
+    @apiSuccess (Created 201) {String} updated_at last update date in isoformat
 
     @apiError (Bad Request 400) BadRequest Invalid data sent by user.
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
@@ -128,10 +128,10 @@ def get_specific_list(id):
     @apiHeader {String} authorization Authorization token.
     @apiParam {String} id Gift list id
 
-    @apiSuccess {String} created_at create date
+    @apiSuccess {String} created_at List creation date in isoformat
     @apiSuccess {String} id gift list id
     @apiSuccess {String} name gift list name
-    @apiSuccess {String} updated_at last update date
+    @apiSuccess {String} updated_at last update date in isoformat
     @apiSuccess {Object} user user that owns the list
 
     @apiSuccessExample success-response:
@@ -172,12 +172,12 @@ def update_list(id):
     @apiParam {String} id list id
 
 
-    @apiBody {String} [name] gift list name
+    @apiBody {String} [name] list name
 
-    @apiSuccess {String} created_at create date
+    @apiSuccess {String} created_at creation date in isoformat
     @apiSuccess {String} id list id
     @apiSuccess {String} name list name
-    @apiSuccess {String} updated_at last update date
+    @apiSuccess {String} updated_at last update date in isoformat
 
     @apiSuccessExample success-response:
         HTTP/1.1 200 OK
@@ -260,7 +260,7 @@ def get_list_gifts(list_id):
     @apiParam {String} list_id List ID
 
     @apiSuccess {Object[]} results a list of gifts
-    @apiSuccess {Object} pagination pagination
+    @apiSuccess {Object} pagination results pagination data
 
     @apiSuccessExample success-response:
         HTTP/1.1 200 OK

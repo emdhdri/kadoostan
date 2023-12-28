@@ -1,4 +1,4 @@
-from app.users import user_bp
+from app.api.users import user_bp
 from app.db.models import User, List, Gift, Purchase
 from flask import request
 from jsonschema import validate
@@ -121,7 +121,7 @@ def get_user():
     @apiSuccess {String} last_name User last name
     @apiSuccess {String} phone_number User phone number
     @apiSuccess {String} created_at Account creation date in isoformat
-    @apiSuccess {String} updated_at Last User update date in isoformat
+    @apiSuccess {String} updated_at Last update date in isoformat
 
     @apiSuccessExample success-response:
         HTTP/1.1 200 OK
@@ -294,7 +294,7 @@ def get_specific_list_gifts_by_phone_number(phone_number, list_id):
     @apiParam {String} list_id List ID
 
     @apiSuccess {Object[]} results a list of gifts
-    @apiSuccess {Object} pagination pagination
+    @apiSuccess {Object} pagination results pagination data
 
     @apiSuccessExample success-response:
         HTTP/1.1 200 OK
