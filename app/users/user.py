@@ -17,8 +17,8 @@ import uuid
 @user_bp.route("/auth/logincode", methods=["POST"])
 def get_login_code():
     """
-    @api {post} /api/user/auth/logincode Get login code
-    @apiName GetLoginCode
+    @api {post} /api/user/auth/logincode Recieve login code
+    @apiName RecieveLoginCode
     @apiGroup User
 
     @apiBody {string} phone_number User phone number
@@ -52,7 +52,7 @@ def get_login_code():
 @user_bp.route("/auth/login", methods=["POST"])
 def login():
     """
-    @api {post} /api/user/auth/login login
+    @api {post} /api/user/auth/login Login
     @apiName Login
     @apiGroup User
 
@@ -67,8 +67,9 @@ def login():
             "token": "lAqL3OCL5O09chhqY5ppnTemzCjUOuJT"
         }
     @apiError (Bad Request 400) BadRequest Invalid data sent by user.
-    @apiError (Not found 404) NotFound Incorrect phone number.
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound Incorrect phone number.
+
     """
     data = request.get_json() or {}
     try:
@@ -94,13 +95,12 @@ def login():
 @token_auth.check_login
 def logout():
     """
-    @api {get} /api/user/logout Logout user
-    @apiName logout
+    @api {get} /api/user/logout Logout
+    @apiName Logout
     @apiGroup User
     @apiHeader {String} authorization Authorization token.
 
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
-
     """
     user = token_auth.current_user()
     user.revoke_token()
@@ -191,7 +191,7 @@ def get_user_lists_by_phone_number(phone_number):
 
     @apiParam {String} phone_number User phone number
 
-    @apiSuccess {Object[]} results User gift lists
+    @apiSuccess {Object[]} results User lists
     @apiSuccess {Object} pagination results pagination data
 
     @apiSuccessExample success-response:
@@ -245,8 +245,8 @@ def get_user_lists_by_phone_number(phone_number):
 @token_auth.check_login
 def get_specific_list_by_phone_number(phone_number, list_id):
     """
-    @api {get} /api/user/:phone_number/lists/:list_id Get specific list by phone number and list id
-    @apiName GetListByID_PhoneNumber
+    @api {get} /api/user/:phone_number/lists/:list_id Get specific list by phone number
+    @apiName GetSpecificList_PhoneNumber
     @apiGroup List
     @apiHeader {String} authorization Authorization token.
 
@@ -285,9 +285,9 @@ def get_specific_list_by_phone_number(phone_number, list_id):
 @token_auth.check_login
 def get_specific_list_gifts_by_phone_number(phone_number, list_id):
     """
-    @api {get} /api/user/:phone_number/lists/:list_id/gift Get list gifts by list id
-    @apiName GetGiftsByListID_PhoneNumber
-    @apiGroup List
+    @api {get} /api/user/:phone_number/lists/:list_id/gift Get gifts by phone number
+    @apiName GetGifts_PhoneNumber
+    @apiGroup Gift
     @apiHeader {String} authorization Authorization token.
 
     @apiParam {String} phone_number User phone number
@@ -352,9 +352,9 @@ def get_specific_list_gifts_by_phone_number(phone_number, list_id):
 def get_specific_gift_by_phone_number(phone_number, list_id, gift_id):
     """@apiHeader {String} authorization Authorization token.
 
-    @api {get} /api/user/:phone_number/lists/:list_id/gifts/:gift_id Get specific gift by id
-    @apiName GetSpecificGiftByID_PhoneNumber
-    @apiGroup List
+    @api {get} /api/user/:phone_number/lists/:list_id/gifts/:gift_id Get specific gift by phone number
+    @apiName GetSpecificGift_PhoneNumber
+    @apiGroup Gift
     @apiHeader {String} authorization Authorization token.
 
     @apiParam {String} phone_number User phone number

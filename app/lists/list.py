@@ -19,15 +19,15 @@ import uuid
 @token_auth.check_login
 def get_lists():
     """
-    @api {get}  /api/lists Get User gift lists
-    @apiName AllLists
+    @api {get}  /api/lists Get User lists
+    @apiName GetLists
     @apiGroup List
     @apiHeader {String} authorization Authorization token.
 
     @apiParam {Number} [page] page in pagination
     @apiParam {Number} [per_page] result per page
 
-    @apiSuccess {Object[]} results list of user gift lists
+    @apiSuccess {Object[]} results list of user lists
     @apiSuccess {Object} pagination pagination
 
     @apiSuccessExample success-response:
@@ -54,6 +54,8 @@ def get_lists():
         }
 
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound List not found.
+
     """
     user = token_auth.current_user()
     parameters = request.args
@@ -63,6 +65,7 @@ def get_lists():
     stop = start + per_page
     if start > stop or start < 0 or page <= 0 or per_page <= 0:
         return error_response(404)
+
     gift_lists = List.objects(user_ref=user).order_by("-_created_at")[start:stop]
     serialized_data = [gift_list.to_dict() for gift_list in gift_lists]
     response_data = {
@@ -79,12 +82,12 @@ def get_lists():
 @token_auth.check_login
 def create_list():
     """
-    @api {post} /api/lists Create new gift list
+    @api {post} /api/lists Create new list
     @apiName CreateList
     @apiGroup List
     @apiHeader {String} authorization Authorization token.
 
-    @apiBody {String} name gift list name
+    @apiBody {String} name list name
 
     @apiSuccess (Created 201) {String} created_at create date
     @apiSuccess (Created 201) {String} id gift list id
@@ -162,18 +165,18 @@ def get_specific_list(id):
 @token_auth.check_login
 def update_list(id):
     """
-    @api {put} /api/lists/:id Modify gift list
-    @apiName ModifyList
+    @api {put} /api/lists/:id Update list
+    @apiName UpdateList
     @apiGroup List
     @apiHeader {String} authorization Authorization token.
-    @apiParam {String} id Gift list id
+    @apiParam {String} id list id
 
 
     @apiBody {String} [name] gift list name
 
     @apiSuccess {String} created_at create date
-    @apiSuccess {String} id gift list id
-    @apiSuccess {String} name gift list name
+    @apiSuccess {String} id list id
+    @apiSuccess {String} name list name
     @apiSuccess {String} updated_at last update date
 
     @apiSuccessExample success-response:
@@ -226,12 +229,12 @@ def update_list(id):
 @token_auth.check_login
 def delete_list(id):
     """
-    @api {delete} /api/lists/:id Delete gift list
+    @api {delete} /api/lists/:id Delete list
     @apiName DeleteList
     @apiGroup List
     @apiHeader {String} authorization Authorization token.
 
-    @apiParam {String} id Gift list id
+    @apiParam {String} id list id
 
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
     @apiError (Not found 404) NotFound List not found.
@@ -251,7 +254,7 @@ def get_list_gifts(list_id):
     """
     @api {get} /api/lists/:list_id/gifts Get gifts in a list
     @apiName GetGiftsInList
-    @apiGroup List
+    @apiGroup Gift
     @apiHeader {String} authorization Authorization token.
 
     @apiParam {String} list_id List ID
