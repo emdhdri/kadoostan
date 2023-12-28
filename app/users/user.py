@@ -67,6 +67,7 @@ def login():
             "token": "lAqL3OCL5O09chhqY5ppnTemzCjUOuJT"
         }
     @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+    @apiError (Not found 404) NotFound Incorrect phone number.
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
     """
     data = request.get_json() or {}
@@ -109,7 +110,32 @@ def logout():
 @user_bp.route("", methods=["GET"])
 @token_auth.check_login
 def get_user():
-    """"""
+    """
+    @api {get} /api/user Get user data
+    @apiName GetUser
+    @apiGroup User
+    @apiHeader {String} authorization Authorization token.
+
+    @apiSuccess {String} id User ID
+    @apiSuccess {String} first_name User first name
+    @apiSuccess {String} last_name User last name
+    @apiSuccess {String} phone_number User phone number
+    @apiSuccess {String} created_at Account creation date in isoformat
+    @apiSuccess {String} updated_at Last User update date in isoformat
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "created_at": "2023-12-27T16:06:53.112000",
+            "first_name": null,
+            "id": "ee32df7b-bb57-4a29-b4fd-c89494f2d01f",
+            "last_name": null,
+            "phone_number": "09000000000",
+            "updated_at": "2023-12-27T16:06:53.112000"
+        }
+
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    """
     user = token_auth.current_user()
     response_data = user.to_dict(confidential_data=True)
     return make_response(data=response_data, status_code=200)
@@ -118,7 +144,29 @@ def get_user():
 @user_bp.route("/<string:phone_number>", methods=["GET"])
 @token_auth.check_login
 def get_user_by_phone_number(phone_number):
-    """"""
+    """
+    @api {get} /api/user/:phone_number Get user data by phone number
+    @apiName GetUser_PhoneNumber
+    @apiGroup User
+    @apiHeader {String} authorization Authorization token.
+
+    @apiParam {String} phone_number User phone number
+
+    @apiSuccess {String} first_name User first name
+    @apiSuccess {String} last_name User last name
+    @apiSuccess {String} phone_number User phone number
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "first_name": null,
+            "last_name": null,
+            "phone_number": "09000000000"
+        }
+
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound User with provided phone number not found.
+    """
     user = token_auth.current_user()
     if user.phone_number == phone_number:
         response_data = user.to_dict(confidential_data=True)
@@ -135,7 +183,43 @@ def get_user_by_phone_number(phone_number):
 @user_bp.route("/<string:phone_number>/lists", methods=["GET"])
 @token_auth.check_login
 def get_user_lists_by_phone_number(phone_number):
-    """"""
+    """
+    @api {get} /api/user/:phone_number/lists Get User lists by phone number
+    @apiName GetLists_PhoneNumber
+    @apiGroup List
+    @apiHeader {String} authorization Authorization token.
+
+    @apiParam {String} phone_number User phone number
+
+    @apiSuccess {Object[]} results User gift lists
+    @apiSuccess {Object} pagination results pagination data
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "pagination": {
+                "page": 1,
+                "per_page": 10
+            },
+            "results": [
+                {
+                    "created_at": "2023-12-26T17:15:28.366000",
+                    "id": "43a57473-e734-423c-ac2a-3131690db057",
+                    "name": "christmas",
+                    "updated_at": "2023-12-26T17:15:28.366000"
+                },
+                {
+                    "created_at": "2023-12-26T17:13:46.753000",
+                    "id": "b11ab52c-586f-4c71-a1a7-ef35812ed9be",
+                    "name": "birthday",
+                    "updated_at": "2023-12-26T17:14:07.369000"
+                }
+            ]
+        }
+
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound User with provided phone number not found.
+    """
     user = User.objects(phone_number=phone_number).first()
     if user is None:
         return error_response(404)
@@ -160,7 +244,32 @@ def get_user_lists_by_phone_number(phone_number):
 @user_bp.route("/<string:phone_number>/lists/<string:list_id>", methods=["GET"])
 @token_auth.check_login
 def get_specific_list_by_phone_number(phone_number, list_id):
-    """"""
+    """
+    @api {get} /api/user/:phone_number/lists/:list_id Get specific list by phone number and list id
+    @apiName GetListByID_PhoneNumber
+    @apiGroup List
+    @apiHeader {String} authorization Authorization token.
+
+    @apiParam {string} phone_number User phone number
+    @apiParam {String} list_id List ID
+
+    @apiSuccess {String} id list ID
+    @apiSuccess {String} name list name
+    @apiSuccess {String} created_at List creation date in isoformat
+    @apiSuccess {String} updated_at Last update date of list in isoformat
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "created_at": "2023-12-26T17:15:28.366000",
+            "id": "43a57473-e734-423c-ac2a-3131690db057",
+            "name": "christmas",
+            "updated_at": "2023-12-26T17:15:28.366000"
+        }
+
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound List with provided data not found.
+    """
     user = User.objects(phone_number=phone_number).first()
     if user is None:
         return error_response(404)
@@ -175,7 +284,40 @@ def get_specific_list_by_phone_number(phone_number, list_id):
 @user_bp.route("/<string:phone_number>/lists/<string:list_id>/gifts", methods=["GET"])
 @token_auth.check_login
 def get_specific_list_gifts_by_phone_number(phone_number, list_id):
-    """"""
+    """
+    @api {get} /api/user/:phone_number/lists/:list_id/gift Get list gifts by list id
+    @apiName GetGiftsByListID_PhoneNumber
+    @apiGroup List
+    @apiHeader {String} authorization Authorization token.
+
+    @apiParam {String} phone_number User phone number
+    @apiParam {String} list_id List ID
+
+    @apiSuccess {Object[]} results a list of gifts
+    @apiSuccess {Object} pagination pagination
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "pagination": {
+                "page": 1,
+                "per_page": 10
+            },
+            "results": [
+                {
+                    "created_at": "2023-12-27T12:26:02.723000",
+                    "id": "96dfdef9-0e94-4a39-a28b-08fd9e0b54b9",
+                    "link": null,
+                    "name": "book",
+                    "price": 600,
+                    "purchases": [],
+                    "updated_at": "2023-12-27T12:26:35.426000"
+                }
+            ]
+        }
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound resources with provided data not found.
+    """
     user = User.objects(phone_number=phone_number).first()
     if user is None:
         return error_response(404)
@@ -208,7 +350,49 @@ def get_specific_list_gifts_by_phone_number(phone_number, list_id):
 )
 @token_auth.check_login
 def get_specific_gift_by_phone_number(phone_number, list_id, gift_id):
-    """"""
+    """@apiHeader {String} authorization Authorization token.
+
+    @api {get} /api/user/:phone_number/lists/:list_id/gifts/:gift_id Get specific gift by id
+    @apiName GetSpecificGiftByID_PhoneNumber
+    @apiGroup List
+    @apiHeader {String} authorization Authorization token.
+
+    @apiParam {String} phone_number User phone number
+    @apiParam {String} list_id List ID
+    @apiParam {String} gift_id Gift ID
+
+    @apiSuccess {String} id Gift ID
+    @apiSuccess {String} name gift name
+    @apiSuccess {Number} price gift price
+    @apiSuccess {String} link gift link
+    @apiSuccess {String} created_at gift creation date in isoformat
+    @apiSuccess {String} updated_at gift last update date in isoformat
+    @apiSuccess {Object[]} purchases list of purchases(people who want ot purchase gift)
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "created_at": "2023-12-27T12:26:02.723000",
+            "id": "96dfdef9-0e94-4a39-a28b-08fd9e0b54b9",
+            "link": null,
+            "name": "book",
+            "price": 600,
+            "purchases": [
+                {
+                    "purchased_at": "2023-12-27T15:13:31.193000",
+                    "user": {
+                        "first_name": "lex",
+                        "last_name": "fridman",
+                        "phone_number": "09935776712"
+                    }
+                }
+            ],
+            "updated_at": "2023-12-27T12:26:35.426000"
+        }
+
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound resources with provided data not found.
+    """
     user = User.objects(phone_number=phone_number).first()
     if user is None:
         return error_response(404)
@@ -227,8 +411,8 @@ def get_specific_gift_by_phone_number(phone_number, list_id, gift_id):
 @token_auth.check_login
 def update_user():
     """
-    @api {put} /api/user Modify User
-    @apiname ModifyUser
+    @api {put} /api/user Update User
+    @apiname UpdateUser
     @apiGroup User
     @apiHeader {String} authorization Authorization token.
 

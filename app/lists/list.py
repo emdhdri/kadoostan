@@ -230,6 +230,7 @@ def delete_list(id):
     @apiName DeleteList
     @apiGroup List
     @apiHeader {String} authorization Authorization token.
+
     @apiParam {String} id Gift list id
 
     @apiError (Unauthorized 401) Unauthorized the user is not authorized.
@@ -247,7 +248,40 @@ def delete_list(id):
 @list_bp.route("/<string:list_id>/gifts", methods=["GET"])
 @token_auth.check_login
 def get_list_gifts(list_id):
-    """"""
+    """
+    @api {get} /api/lists/:list_id/gifts Get gifts in a list
+    @apiName GetGiftsInList
+    @apiGroup List
+    @apiHeader {String} authorization Authorization token.
+
+    @apiParam {String} list_id List ID
+
+    @apiSuccess {Object[]} results a list of gifts
+    @apiSuccess {Object} pagination pagination
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "pagination": {
+                "page": 1,
+                "per_page": 10
+            },
+            "results": [
+                {
+                    "created_at": "2023-12-27T12:26:02.723000",
+                    "id": "96dfdef9-0e94-4a39-a28b-08fd9e0b54b9",
+                    "link": null,
+                    "name": "book",
+                    "price": 600,
+                    "purchases": [],
+                    "updated_at": "2023-12-27T12:26:35.426000"
+                }
+            ]
+        }
+
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound resources with provided data not found.
+    """
     user = token_auth.current_user()
     gift_list = List.objects(id=list_id, user_ref=user).first()
     if gift_list is None:
@@ -278,7 +312,34 @@ def get_list_gifts(list_id):
 @list_bp.route("/<string:list_id>/gifts", methods=["POST"])
 @token_auth.check_login
 def create_gift(list_id):
-    """"""
+    """
+    @api {post} /api/lists/:list_id/gifts Create new gift
+    @apiName CreatGift
+    @apiGroup Gift
+    @apiHeader {String} authorization Authorization token.
+
+    @apiParam {Stiring} list_id List ID
+
+    @apiBody {String} name gift name
+    @apiBody {Number} [price] gift price
+    @apiBody {String} [link] gift link
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 201 CREATED
+        {
+            "created_at": "2023-12-27T20:40:13.338701",
+            "id": "73d818d8-8d40-411c-8ae0-0a28236853e9",
+            "link": null,
+            "name": "book",
+            "price": 100,
+            "purchases": [],
+            "updated_at": "2023-12-27T20:40:13.338701"
+        }
+
+    @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound resources with provided data not found.
+    """
     user = token_auth.current_user()
     gift_list = List.objects(id=list_id, user_ref=user).first()
     if gift_list is None:
@@ -303,7 +364,47 @@ def create_gift(list_id):
 @list_bp.route("/<string:list_id>/gifts/<string:gift_id>", methods=["GET"])
 @token_auth.check_login
 def get_specific_gift(list_id, gift_id):
-    """"""
+    """
+    @api {get} /api/lists/:list_id/gifts/:gift_id Get specific gift
+    @apiName GetspecificGift
+    @apiGroup Gift
+    @apiHeader {String} authorization Authorization token.
+
+    @apiParam {String} list_id List ID
+    @apiParam {String} gift_id Gift ID
+
+    @apiSuccess {String} id Gift ID
+    @apiSuccess {String} name gift name
+    @apiSuccess {Number} price gift price
+    @apiSuccess {String} link gift link
+    @apiSuccess {String} created_at gift creation date in isoformat
+    @apiSuccess {String} updated_at gift last update date in isoformat
+    @apiSuccess {Object[]} purchases list of purchases(people who want ot purchase gift)
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "created_at": "2023-12-27T12:26:02.723000",
+            "id": "96dfdef9-0e94-4a39-a28b-08fd9e0b54b9",
+            "link": null,
+            "name": "book",
+            "price": 600,
+            "purchases": [
+                {
+                    "purchased_at": "2023-12-27T15:13:31.193000",
+                    "user": {
+                        "first_name": "lex",
+                        "last_name": "fridman",
+                        "phone_number": "09935776712"
+                    }
+                }
+            ],
+            "updated_at": "2023-12-27T12:26:35.426000"
+        }
+
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound resources with provided data not found.
+    """
     user = token_auth.current_user()
     gift_list = List.objects(id=list_id, user_ref=user).first()
     if gift_list is None:
@@ -319,7 +420,35 @@ def get_specific_gift(list_id, gift_id):
 @list_bp.route("/<string:list_id>/gifts/<string:gift_id>", methods=["PUT"])
 @token_auth.check_login
 def update_gift(list_id, gift_id):
-    """"""
+    """
+    @api {put} /api/lists/:list_id/gifts/:gift_id Update gift
+    @apiName UpdateGift
+    @apiGroup Gift
+    @apiHeader {String} authorization Authorization token.
+
+    @apiParam {String} list_id List ID
+    @apiParam {String} gift_id Gift ID
+
+    @apiBody {String} [name] gift name
+    @apiBody {Number} [price] gift price
+    @apiBody {String} [link] gift link
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 200 OK
+        {
+            "created_at": "2023-12-27T20:40:13.338701",
+            "id": "73d818d8-8d40-411c-8ae0-0a28236853e9",
+            "link": null,
+            "name": "ipad",
+            "price": 500,
+            "purchases": [],
+            "updated_at": "2023-12-27T20:40:13.338701"
+        }
+
+    @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound resources with provided data not found.
+    """
     user = token_auth.current_user()
     gift_list = List.objects(id=list_id, user_ref=user).first()
     if gift_list is None:
@@ -343,7 +472,18 @@ def update_gift(list_id, gift_id):
 @list_bp.route("/<string:list_id>/gifts/<string:gift_id>", methods=["DELETE"])
 @token_auth.check_login
 def delete_gift(list_id, gift_id):
-    """"""
+    """
+    @api {delete} /api/lists/:list_id/gifts/:gift_id Delete gift
+    @apiName DeleteGift
+    @apiGroup Gift
+    @apiHeader {String} authorization Authorization token.
+
+    @apiParam {String} list_id list ID
+    @apiParam {String} gift_id Gift ID
+
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound List not found.
+    """
     user = token_auth.current_user()
     gift_list = List.objects(id=list_id, user_ref=user).first()
     if gift_list is None:

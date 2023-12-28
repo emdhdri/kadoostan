@@ -13,7 +13,32 @@ import uuid
 @purchase_bp.route("", methods=["POST"])
 @token_auth.check_login
 def purchase_gift():
-    """"""
+    """
+    @api {post} /api/purchase Create new purchase
+    @apiName CreatePurchase
+    @apiGroup Purchase
+    @apiHeader {String} authorization Authorization token.
+
+    @apiBody {String} gift_id Gift ID
+
+    @apiSuccess (CREATED 201) {String} purchased_at purchase date in isofromat
+    @apiSuccess (CREATED 201) {Object} user User who purchased the gift
+
+    @apiSuccessExample success-response:
+        HTTP/1.1 201 CREATED
+        {
+            "purchased_at": "2023-12-27T20:54:10.094806",
+            "user": {
+                "first_name": null,
+                "last_name": null,
+                "phone_number": "09000000000"
+            }
+        }
+
+    @apiError (Bad Request 400) BadRequest Invalid data sent by user.
+    @apiError (Unauthorized 401) Unauthorized the user is not authorized.
+    @apiError (Not found 404) NotFound resources with provided data not found.
+    """
     user = token_auth.current_user()
     body = request.get_json() or {}
     try:
