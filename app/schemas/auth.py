@@ -1,10 +1,10 @@
 import jsl
 
-phone_number_pattern = r"(\+98|0)9\d{9}$"
+PHONE_NUMBER_PATTERN = r"(\+98|0)9\d{9}$"
 
 
 class LoginCodeSchema(jsl.Document):
-    phone_number = jsl.StringField(required=True, pattern=phone_number_pattern)
+    phone_number = jsl.StringField(required=True, pattern=PHONE_NUMBER_PATTERN)
 
 
 class LoginSchema(LoginCodeSchema):
