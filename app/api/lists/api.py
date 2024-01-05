@@ -19,7 +19,7 @@ import uuid
 @token_auth.check_login
 def get_lists():
     """
-    @api {get}  /api/list Get User lists
+    @api {get}  /api/list Get Lists
     @apiName GetLists
     @apiGroup List
     @apiHeader {String} Authorization Authorization token.
@@ -75,7 +75,7 @@ def get_lists():
 @token_auth.check_login
 def create_list():
     """
-    @api {post} /api/list Create new list
+    @api {post} /api/list Create List
     @apiName CreateList
     @apiGroup List
     @apiHeader {String} Authorization Authorization token.
@@ -122,7 +122,7 @@ def create_list():
 @token_auth.check_login
 def get_specific_list(list_id):
     """
-    @api {get} /api/list/:list_id Get specific list
+    @api {get} /api/list/:list_id Get specific List
     @apiName GetSpecificList
     @apiGroup List
     @apiHeader {String} Authorization Authorization token.
@@ -172,7 +172,7 @@ def get_specific_list(list_id):
 @token_auth.check_login
 def update_list(list_id):
     """
-    @api {put} /api/list/:list_id Update list
+    @api {put} /api/list/:list_id Update List
     @apiName UpdateList
     @apiGroup List
     @apiHeader {String} authorization Authorization token.
@@ -221,7 +221,7 @@ def update_list(list_id):
 @token_auth.check_login
 def delete_list(list_id):
     """
-    @api {delete} /api/list/:list_id Delete list
+    @api {delete} /api/list/:list_id Delete List
     @apiName DeleteList
     @apiGroup List
     @apiHeader {String} Authorization Authorization token.
@@ -244,7 +244,7 @@ def delete_list(list_id):
 @token_auth.check_login
 def get_list_gifts(list_id):
     """
-    @api {get} /api/list/:list_id/gift Get gifts in a list
+    @api {get} /api/list/:list_id/gift Get Gifts
     @apiName GetGiftsInList
     @apiGroup Gift
     @apiHeader {String} Authorization Authorization token.
@@ -303,7 +303,7 @@ def get_list_gifts(list_id):
 @token_auth.check_login
 def create_gift(list_id):
     """
-    @api {post} /api/list/:list_id/gift Create new gift
+    @api {post} /api/list/:list_id/gift Create Gift
     @apiName CreatGift
     @apiGroup Gift
     @apiHeader {String} Authorization Authorization token.
@@ -361,7 +361,7 @@ def create_gift(list_id):
 @token_auth.check_login
 def get_specific_gift(list_id, gift_id):
     """
-    @api {get} /api/list/:list_id/gift/:gift_id Get specific gift
+    @api {get} /api/list/:list_id/gift/:gift_id Get specific Gift
     @apiName GetSpecificGift
     @apiGroup Gift
     @apiHeader {String} Authorization Authorization token.
@@ -412,7 +412,7 @@ def get_specific_gift(list_id, gift_id):
 @token_auth.check_login
 def update_gift(list_id, gift_id):
     """
-    @api {put} /api/list/:list_id/gift/:gift_id Update gift
+    @api {put} /api/list/:list_id/gift/:gift_id Update Gift
     @apiName UpdateGift
     @apiGroup Gift
     @apiHeader {String} Authorization Authorization token.
@@ -475,7 +475,7 @@ def update_gift(list_id, gift_id):
 @token_auth.check_login
 def delete_gift(list_id, gift_id):
     """
-    @api {delete} /api/list/:list_id/gift/:gift_id Delete gift
+    @api {delete} /api/list/:list_id/gift/:gift_id Delete Gift
     @apiName DeleteGift
     @apiGroup Gift
     @apiHeader {String} Authorization Authorization token.

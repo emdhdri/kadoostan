@@ -120,7 +120,7 @@ def logout():
 @token_auth.check_login
 def get_user():
     """
-    @api {get} /api/user Get user data
+    @api {get} /api/user Get User
     @apiName GetUser
     @apiGroup User
     @apiHeader {String} Authorization Authorization token.
@@ -153,7 +153,7 @@ def get_user():
 @token_auth.check_login
 def get_user_by_phone_number(user_id):
     """
-    @api {get} /api/user/:user_id Get User data by User ID
+    @api {get} /api/user/:user_id Get User by User ID
     @apiName GetUserByUserID
     @apiGroup User
     @apiHeader {String} Authorization Authorization token.
@@ -264,7 +264,7 @@ def search_user_by_phone_number():
 @token_auth.check_login
 def get_lists_by_user_id(user_id):
     """
-    @api {get} /api/user/:user_id/list Get User lists by User id
+    @api {get} /api/user/:user_id/list Get lists by User ID
     @apiName GetListsByUserID
     @apiGroup List
     @apiHeader {String} Authorization Authorization token.
@@ -385,7 +385,7 @@ def get_specific_list_by_user_id(user_id, list_id):
 @token_auth.check_login
 def get_spicific_list_gifts_by_user_id(user_id, list_id):
     """
-    @api {get} /api/user/:user_id/list/:list_id/gift Get gifts by user ID
+    @api {get} /api/user/:user_id/list/:list_id/gift Get Gifts by User ID
     @apiName GetGiftsByUserID
     @apiGroup Gift
     @apiHeader {String} Authorization Authorization token.
@@ -395,7 +395,7 @@ def get_spicific_list_gifts_by_user_id(user_id, list_id):
     @apiQuery {Number} [page] page number
     @apiQuery {Number} [per_page] items per page
 
-    @apiSuccess {Object[]} items a list of gifts
+    @apiSuccess {Object[]} items a list of Gifts
     @apiSuccess {Object} pagination results pagination metadata
 
     @apiSuccessExample success-response:
