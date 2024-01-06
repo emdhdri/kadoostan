@@ -11,7 +11,7 @@ from app.schemas import (
 from app.utils.errors import error_response
 from app.utils.response import make_response
 from app.utils.auth import token_auth
-from app.utils.pagination import get_paginated_data
+from app.utils.pagination import get_pagination_metadata
 import uuid
 
 
@@ -60,15 +60,19 @@ def get_lists():
 
     """
     user = token_auth.current_user()
-    paginated_data = get_paginated_data(
-        model=List,
-        query=Q(user=user),
-        endpoint="list_bp.get_lists",
+    total_items = List.objects(user=user).count()
+    pagination_metadata = get_pagination_metadata(
+        total_items=total_items, endpoint="list_bp.get_lists"
     )
-    if paginated_data is None:
+    if pagination_metadata is None:
         return error_response(404)
 
-    return make_response(data=paginated_data, status_code=200)
+    start = pagination_metadata["start"]
+    stop = pagination_metadata["stop"]
+    items = [list.to_dict() for list in List.objects(user=user)[start:stop]]
+    response_data = {"items": items, "pagination": pagination_metadata["pagination"]}
+
+    return make_response(data=response_data, status_code=200)
 
 
 @list_bp.route("", methods=["POST"])
@@ -109,12 +113,12 @@ def create_list():
     if List.objects(user=user, name=data["name"]).first() is not None:
         return error_response(409)
 
-    gift_list = List()
+    list = List()
     data["id"] = str(uuid.uuid4())
     data["user"] = user
-    gift_list.from_dict(data)
-    gift_list.save()
-    response_data = gift_list.to_dict()
+    list.from_dict(data)
+    list.save()
+    response_data = list.to_dict_include_gifts()
     return make_response(data=response_data, status_code=201)
 
 
@@ -159,12 +163,7 @@ def get_specific_list(list_id):
     if list is None:
         return error_response(404)
 
-    gifts = [gift.to_dict() for gift in Gift.objects(list=list)]
-
-    response_data = {
-        **list.to_dict(),
-        "gifts": gifts,
-    }
+    response_data = list.to_dict_include_gifts()
     return make_response(data=response_data, status_code=200)
 
 
@@ -285,18 +284,22 @@ def get_list_gifts(list_id):
     if list is None:
         return error_response(404)
 
-    paginated_data = get_paginated_data(
-        model=Gift,
-        query=Q(list=list),
+    total_items = list.gifts.count()
+    pagination_metadata = get_pagination_metadata(
+        total_items=total_items,
         endpoint="list_bp.get_list_gifts",
         endpoint_params={
             "list_id": list_id,
         },
     )
-    if paginated_data is None:
+    if pagination_metadata is None:
         return error_response(404)
+    start = pagination_metadata["start"]
+    stop = pagination_metadata["stop"]
+    items = [gift.to_dict() for gift in list.gifts[start:stop]]
+    response_data = {"items": items, "pagination": pagination_metadata["pagination"]}
 
-    return make_response(data=paginated_data, status_code=200)
+    return make_response(data=response_data, status_code=200)
 
 
 @list_bp.route("/<string:list_id>/gift", methods=["POST"])
@@ -337,8 +340,8 @@ def create_gift(list_id):
     @apiError (Not found 404) NotFound resources with provided data not found.
     """
     user = token_auth.current_user()
-    gift_list = List.objects(id=list_id, user=user).first()
-    if gift_list is None:
+    list = List.objects(id=list_id, user=user).first()
+    if list is None:
         return error_response(404)
 
     data = request.get_json() or {}
@@ -349,9 +352,9 @@ def create_gift(list_id):
 
     gift = Gift()
     data["id"] = str(uuid.uuid4())
-    data["list"] = gift_list
     gift.from_dict(data)
-    gift.save()
+    list.gifts.append(gift)
+    list.gifts.save()
 
     response_data = gift.to_dict()
     return make_response(data=response_data, status_code=201)
@@ -397,10 +400,10 @@ def get_specific_gift(list_id, gift_id):
     @apiError (Not found 404) NotFound resources with provided data not found.
     """
     user = token_auth.current_user()
-    gift_list = List.objects(id=list_id, user=user).first()
-    if gift_list is None:
+    list = List.objects(id=list_id, user=user).first()
+    if list is None:
         return error_response(404)
-    gift = Gift.objects(id=gift_id, list=gift_list).first()
+    gift = list.gifts.filter(id=gift_id).first()
     if gift is None:
         return error_response(404)
 
@@ -455,7 +458,7 @@ def update_gift(list_id, gift_id):
     list = List.objects(id=list_id, user=user).first()
     if list is None:
         return error_response(404)
-    gift = Gift.objects(id=gift_id, list=list).first()
+    gift = list.gifts.filter(id=gift_id).first()
     if gift is None:
         return error_response(404)
 
@@ -466,7 +469,7 @@ def update_gift(list_id, gift_id):
         return error_response(400)
 
     gift.from_dict(data, new_obj=False)
-    gift.save()
+    list.gifts.save()
     response_data = gift.to_dict()
     return make_response(data=response_data, status_code=200)
 
@@ -490,9 +493,10 @@ def delete_gift(list_id, gift_id):
     list = List.objects(id=list_id, user=user).first()
     if list is None:
         return error_response(404)
-    gift = Gift.objects(id=gift_id, list=list).first()
+    gift = list.gifts.filter(id=gift_id).first()
     if gift is None:
         return error_response(404)
 
-    gift.delete()
+    list.gifts.remove(gift)
+    list.gifts.save()
     return make_response(status_code=200)

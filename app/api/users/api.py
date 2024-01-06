@@ -10,7 +10,7 @@ from app.schemas import (
 )
 from app.utils.errors import error_response
 from app.utils.response import make_response
-from app.utils.pagination import get_paginated_data
+from app.utils.pagination import get_pagination_metadata
 from app.utils.auth import token_auth
 from jsonschema.exceptions import ValidationError
 from app import limiter
@@ -309,18 +309,23 @@ def get_lists_by_user_id(user_id):
     if user is None:
         return error_response(404)
 
-    paginated_data = get_paginated_data(
-        model=List,
-        query=Q(user=user),
+    total_items = List.objects(user=user).count()
+    pagination_metadata = get_pagination_metadata(
+        total_items=total_items,
         endpoint="user_bp.get_lists_by_user_id",
         endpoint_params={
             "user_id": user_id,
         },
     )
-    if paginated_data is None:
+    if pagination_metadata is None:
         return error_response(404)
 
-    return make_response(data=paginated_data, status_code=200)
+    start = pagination_metadata["start"]
+    stop = pagination_metadata["stop"]
+    items = [list.to_dict() for list in List.objects(user=user)[start:stop]]
+    response_data = {"items": items, "pagination": pagination_metadata["pagination"]}
+
+    return make_response(data=response_data, status_code=200)
 
 
 @user_bp.route("/<string:user_id>/list/<string:list_id>", methods=["GET"])
@@ -375,9 +380,8 @@ def get_specific_list_by_user_id(user_id, list_id):
     list = List.objects(id=list_id, user=user).first()
     if list is None:
         return error_response(404)
-    gifts = [gift.to_dict() for gift in Gift.objects(list=list)]
 
-    response_data = {**list.to_dict(), "gifts": gifts}
+    response_data = list.to_dict_include_gifts()
     return make_response(data=response_data, status_code=200)
 
 
@@ -434,22 +438,28 @@ def get_spicific_list_gifts_by_user_id(user_id, list_id):
     user = User.objects(id=user_id).first()
     if user is None:
         return error_response(404)
-    list = List.objects(id=list_id, user=user).first()
+    list = List.objects(id=list_id, user=user).only("gifts").first()
     if list is None:
         return error_response(404)
 
-    paginated_data = get_paginated_data(
-        model=Gift,
-        query=Q(list=list),
+    total_items = list.gifts.count()
+    pagination_metadata = get_pagination_metadata(
+        total_items=total_items,
         endpoint="user_bp.get_spicific_list_gifts_by_user_id",
         endpoint_params={
             "user_id": user_id,
             "list_id": list_id,
         },
     )
-    if paginated_data is None:
+    if pagination_metadata is None:
         return error_response(404)
-    return make_response(data=paginated_data, status_code=200)
+
+    start = pagination_metadata["start"]
+    stop = pagination_metadata["stop"]
+    items = [gift.to_dict() for gift in list.gifts[start:stop]]
+    response_data = {"items": items, "pagination": pagination_metadata["pagination"]}
+
+    return make_response(data=response_data, status_code=200)
 
 
 @user_bp.route(
@@ -498,10 +508,10 @@ def get_specific_gift_by_user_id(user_id, list_id, gift_id):
     user = User.objects(id=user_id).first()
     if user is None:
         return error_response(404)
-    list = List.objects(id=list_id, user=user).first()
+    list = List.objects(id=list_id, user=user).only("gifts").first()
     if list is None:
         return error_response(404)
-    gift = Gift.objects(id=gift_id, list=list).first()
+    gift = list.gifts.filter(id=gift_id).first()
     if gift is None:
         return error_response(404)
 
@@ -539,7 +549,7 @@ def buy_gift(user_id, list_id, gift_id):
     list = List.objects(id=list_id, user=user).first()
     if list is None:
         return error_response(404)
-    gift = Gift.objects(id=gift_id, list=list).first()
+    gift = list.gifts.filter(id=gift_id).first()
     if gift is None:
         return error_response(404)
 
@@ -547,7 +557,7 @@ def buy_gift(user_id, list_id, gift_id):
         return error_response(409)
 
     gift.expected_buyer = current_user
-    gift.save()
+    list.gifts.save()
     return make_response(status_code=200)
 
 
