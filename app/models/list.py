@@ -27,6 +27,17 @@ class List(me.Document, BaseDocument):
         }
         return data
 
+    def include_gifts_to_dict(self) -> Dict[str, Any]:
+        created_at = None if self.created_at is None else self.created_at.isoformat()
+        gifts = [gift.to_dict() for gift in self.gifts]
+        data = {
+            "id": self.id,
+            "name": self.name,
+            "created_at": created_at,
+            "gifts": gifts,
+        }
+        return data
+
     def from_dict(self, data: Dict[str, Any], new_obj: bool = True) -> None:
         if "id" in data:
             self.id = data["id"]
