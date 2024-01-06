@@ -1,24 +1,15 @@
 import mongoengine as me
 from app.models.base import BaseDocument
-from app.models.list import List
 from app.models.user import User
 from datetime import datetime
 from typing import Dict, Any
 
 
-class Gift(me.Document, BaseDocument):
-    list = me.ReferenceField(List, reverse_delete_rule=me.CASCADE, required=True)
+class Gift(me.EmbeddedDocument, BaseDocument):
     name = me.StringField(required=True)
     price = me.IntField()
     link = me.StringField()
-    expected_buyer = me.ReferenceField(User, reverse_delete_rule=me.NULLIFY)
-
-    meta = {
-        "collection": "Gifts",
-        "indexes": [
-            "list",
-        ],
-    }
+    expected_buyer = me.ReferenceField(User)
 
     def to_dict(self) -> Dict[str, Any]:
         expected_buyer = self.expected_buyer
@@ -44,7 +35,5 @@ class Gift(me.Document, BaseDocument):
             self.price = data["price"]
         if "link" in data:
             self.link = data["link"]
-        if "list" in data:
-            self.list = data["list"]
         if new_obj:
             self.created_at = datetime.utcnow()

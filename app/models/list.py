@@ -1,6 +1,7 @@
 import mongoengine as me
 from app.models.base import BaseDocument
 from app.models.user import User
+from app.models.gift import Gift
 from datetime import datetime
 from typing import Dict, Any
 
@@ -8,6 +9,7 @@ from typing import Dict, Any
 class List(me.Document, BaseDocument):
     user = me.ReferenceField(User, reverse_delete_rule=me.CASCADE, required=True)
     name = me.StringField(required=True, unique_with="user")
+    gifts = me.EmbeddedDocumentListField(Gift)
 
     meta = {
         "collection": "lists",
