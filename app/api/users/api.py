@@ -1,6 +1,5 @@
 from app.api.users import user_bp
-from app.models import User, List, Gift, Token
-from mongoengine.queryset.visitor import Q
+from app.models import User, List, Token
 from flask import request
 from jsonschema import validate
 from app.schemas import (
@@ -43,9 +42,6 @@ def get_login_code():
         user.save()
 
     login_code = user.get_login_code()
-    if login_code is None:
-        user.generate_and_save_login_code()
-        login_code = user.get_login_code()
     # this part is just for test
     response_data = {
         "login_code": login_code,

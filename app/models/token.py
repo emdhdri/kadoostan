@@ -5,6 +5,7 @@ import os
 import base64
 from datetime import timedelta
 from app import redis_connection
+from typing import Optional
 
 
 class Token(me.Document):
@@ -27,7 +28,7 @@ class Token(me.Document):
         token_obj.save()
 
     @classmethod
-    def get_token(cls, user: User) -> str:
+    def get_token(cls, user: User) -> Optional[str]:
         token_obj = cls.objects(user=user).first()
         if token_obj is None:
             return None

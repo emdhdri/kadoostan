@@ -1,14 +1,13 @@
 import mongoengine as me
 from app.models.base import BaseDocument
 from app.models.user import User
+from app.models.item import Item
 from datetime import datetime
 from typing import Dict, Any
 
 
 class Gift(me.EmbeddedDocument, BaseDocument):
-    name = me.StringField(required=True)
-    price = me.IntField()
-    link = me.StringField()
+    item = me.ReferenceField(Item)
     expected_buyer = me.ReferenceField(User)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -18,22 +17,15 @@ class Gift(me.EmbeddedDocument, BaseDocument):
         created_at = None if self.created_at is None else self.created_at.isoformat()
         data = {
             "id": self.id,
-            "name": self.name,
-            "price": self.price,
-            "link": self.link,
+            "item": self.item.to_dict_gift(),
             "expected_buyer": expected_buyer,
             "created_at": created_at,
         }
         return data
 
-    def from_dict(self, data: Dict[str, Any], new_obj: bool = True) -> None:
+    def from_dict_new_object(self, data: Dict[str, Any]) -> None:
         if "id" in data:
             self.id = data["id"]
-        if "name" in data:
-            self.name = data["name"]
-        if "price" in data:
-            self.price = data["price"]
-        if "link" in data:
-            self.link = data["link"]
-        if new_obj:
-            self.created_at = datetime.utcnow()
+        if "item" in data:
+            self.item = data["item"]
+        self.created_at = datetime.utcnow()

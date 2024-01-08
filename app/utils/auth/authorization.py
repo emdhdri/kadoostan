@@ -3,6 +3,7 @@ from app.models import User
 from functools import wraps
 from app.utils.errors import error_response
 from app import redis_connection
+from typing import Optional
 
 
 class TokenAuthz:
@@ -37,6 +38,6 @@ class TokenAuthz:
 
         return decorated
 
-    def current_user(self) -> User:
+    def current_user(self) -> Optional[User]:
         if hasattr(g, "current_user"):
             return g.current_user

@@ -3,11 +3,11 @@ from typing import Dict, Any, Optional, Tuple
 import math
 
 
-def compute_range(page: int, per_page: int) -> Tuple[Optional[int]]:
+def compute_range(page: int, per_page: int):
     start = (page - 1) * per_page
     stop = start + per_page
     if start > stop or start < 0 or page <= 0 or per_page <= 0:
-        start = stop = None
+        return (None, None)
 
     return (start, stop)
 

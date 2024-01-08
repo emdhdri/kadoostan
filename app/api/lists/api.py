@@ -1,7 +1,6 @@
 from app.api.lists import list_bp
 from flask import request
 from app.models import List, Gift
-from mongoengine.queryset.visitor import Q
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from app.schemas import (

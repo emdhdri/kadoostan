@@ -49,12 +49,18 @@ class User(me.Document, BaseDocument):
         login_code = str(randint(10000, 99999))
         redis_connection.setex(key, timedelta(minutes=2), login_code)
 
-    def get_login_code(self) -> str:
+    def get_login_code(self):
         key = f"user:{self.id}:login_code"
         login_code = redis_connection.get(key)
+        redis_connection.get
+        if login_code is None:
+            self.generate_and_save_login_code()
+            login_code = redis_connection.get(key)
         return login_code
 
     def check_login_code(self, provided_login_code: str) -> bool:
         key = f"user:{self.id}:login_code"
         login_code = redis_connection.get(key)
+        if login_code is None:
+            return False
         return login_code == provided_login_code
