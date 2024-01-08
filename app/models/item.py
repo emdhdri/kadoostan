@@ -7,12 +7,12 @@ import uuid
 
 
 class Item(me.Document, BaseDocument):
+    product_id = me.IntField(required=True, unique=True)
+    category = me.StringField(required=True)
     title_fa = me.StringField()
     title_en = me.StringField()
     price = me.IntField()
     uri = me.StringField()
-    category = me.StringField()
-    product_id = me.IntField(required=True, unique=True)
 
     meta = {
         "collection": "items",

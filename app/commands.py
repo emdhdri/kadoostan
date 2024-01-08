@@ -1,10 +1,12 @@
 from app import app
+import click
 from app.models import Item
 import requests
 from typing import Dict, Any, Optional
 from app.schemas import ItemSchema
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
+import math
 
 COLORS = {
     "red": "\033[1;31m",
@@ -36,7 +38,9 @@ def parse_product(product, category_code) -> Optional[Dict[str, Any]]:
 
 
 @app.cli.command("collect-data")
-def collect_data():
+@click.argument("count")
+def collect_data(count):
+    count = int(count)
     categories_url = "https://api.digikala.com/v2/"
     print_message("Getting categories", COLORS["white"])
     response = requests.get(url=categories_url).json()
@@ -45,14 +49,17 @@ def collect_data():
     total_saved = 0
     for index, category in enumerate(categories, start=1):
         category_code = category["code"]
-        products_url = (
-            "https://api.digikala.com/v1/categories/{}/search/?page=1&sort=1".format(
-                category_code
-            )
-        )
         print_message("{}. Getting {} products".format(index, category_code))
-        response = requests.get(url=products_url).json()
-        products = response["data"]["products"]
+        raw_url = "https://api.digikala.com/v1/categories/{}/search/?page={}&sort=1"
+        pages, remainder = divmod(count, 20)
+        products = []
+        for page in range(1, pages + 2):
+            url = raw_url.format(category_code, page)
+            response = requests.get(url=url).json()
+            if page == pages + 1:
+                products.extend(response["data"]["products"][:remainder])
+                break
+            products.extend(response["data"]["products"])
 
         for product in products:
             product_data = parse_product(product, category_code)
