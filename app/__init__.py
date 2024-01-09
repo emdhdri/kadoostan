@@ -18,7 +18,6 @@ limiter = Limiter(
 )
 
 from app.api import user_bp, list_bp
-from app.commands import collect_data
 import mongoengine as me
 
 

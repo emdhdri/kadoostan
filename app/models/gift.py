@@ -7,7 +7,7 @@ from typing import Dict, Any
 
 
 class Gift(me.EmbeddedDocument, BaseDocument):
-    item = me.ReferenceField(Item)
+    item = me.ReferenceField(Item, required=True)
     expected_buyer = me.ReferenceField(User)
 
     def to_dict(self) -> Dict[str, Any]:

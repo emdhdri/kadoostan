@@ -1,7 +1,7 @@
 from __future__ import annotations
 import mongoengine as me
 from app.models.base import BaseDocument
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from datetime import datetime
 import uuid
 
@@ -62,7 +62,7 @@ class Item(me.Document, BaseDocument):
         self.create_at = datetime.utcnow()
 
     @classmethod
-    def create_new_item(cls, data: Dict[str, Any]) -> Optional[Item]:
+    def create_new_item(cls, data: Dict[str, Any]) -> None:
         if cls.objects(product_id=data["product_id"]).first() is not None:
             return None
 
@@ -70,4 +70,3 @@ class Item(me.Document, BaseDocument):
         data["id"] = str(uuid.uuid4())
         item.from_dict(data)
         item.save()
-        return item

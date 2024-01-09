@@ -1,5 +1,5 @@
 from flask import request, url_for
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional
 import math
 
 
