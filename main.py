@@ -25,16 +25,16 @@ def collect_items(count):
 
     for category in categories:
         category_code = category["code"]
-        pages, remainder = divmod(count, 20)
+        pages_count, remainder = divmod(count, 20)
         products = []
-        for page in range(1, pages + 2):
+        for page in range(1, pages_count + 2):
             url = get_products_url(category_code, page)
             response = requests.get(url=url).json()
             paginated_products = get_products(response)
             if paginated_products is None:
                 continue
 
-            if page == pages + 1:
+            if page == pages_count + 1:
                 products.extend(paginated_products[:remainder])
                 break
             products.extend(paginated_products)
